@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIT Bhopal — Parcel & Rentals Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .services-container {
+    max-width: 1000px;
+    margin: 32px auto;
+    padding: 0 20px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+  .service-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-line);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+  }
+  .status-tag {
+    display: inline-block;
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--wa-green);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body style="overflow: auto;">
+
+<div class="app-container" style="height: auto; min-height: 100vh;">
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-badge">VIT</span>
+      </div>
+      <div class="brand-title">
+        <span class="brand-sub">Campus Help Desk</span>
+        <h1>VIT Bhopal <span>Courier & Rentals</span></h1>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a href="index.html" class="nav-item">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+        Campus Map
+      </a>
+      <a href="campus-cab-desk.html" class="nav-item">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 3C2.1 11.2 2 11.6 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+        Cabs & Autos
+      </a>
+      <a href="#" class="nav-item active">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Parcel & Rentals
+      </a>
+    </nav>
+  </header>
+
+  <div class="services-container">
+    <h2>📦 Courier Parcel Hub & Campus Rentals</h2>
+    <p style="color: var(--text-muted); margin-top: 4px;">Track parcel collections, bicycle rentals, and laundry slots.</p>
+
+    <div class="grid-2">
+      <div class="service-card">
+        <span class="status-tag">COUNTER OPEN 10 AM - 6 PM</span>
+        <h3>Parcel Pickup Hub</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px; line-height: 1.5;">
+          All Amazon, Flipkart, DTDC, Delhivery, and BlueDart shipments arrive at the Parcel Hub located near the Food Court junction.
+        </p>
+
+        <div style="margin-top: 16px;">
+          <input type="text" placeholder="Enter Tracking / Phone Number" style="width: 100%; padding: 10px; background: var(--bg-panel); border: 1px solid var(--border-line); color: #fff; border-radius: 6px;" />
+          <button class="action-btn primary" style="width: 100%; margin-top: 10px;">Check Parcel Ready Status 🔍</button>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="status-tag">AVAILABLE ON CAMPUS</span>
+        <h3>Bicycle & Electric Scooter Rental</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px; line-height: 1.5;">
+          Rent bicycles or hourly e-scooters for convenient travel between Hostels, AB1, and the Sports Ground.
+        </p>
+
+        <div style="margin-top: 16px; background: var(--bg-panel); padding: 12px; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px;">
+            <span>Bicycle Rental:</span>
+            <strong>₹20 / hour</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 8px;">
+            <span>E-Scooter Rental:</span>
+            <strong>₹45 / 30 mins</strong>
+          </div>
+        </div>
+
+        <button onclick="window.open('https://wa.me/919630741753', '_blank')" class="action-btn outline" style="width: 100%; margin-top: 16px;">Reserve Bike via WhatsApp 🚲</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

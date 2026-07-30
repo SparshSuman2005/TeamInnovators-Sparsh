@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIT Bhopal — Campus Cab & Auto Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .cab-container {
+    max-width: 1000px;
+    margin: 32px auto;
+    padding: 0 20px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+  .calc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-line);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .form-group select, .form-group input {
+    width: 100%;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-line);
+    color: var(--text-main);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    outline: none;
+    font-size: 14px;
+  }
+  .fare-estimate {
+    background: rgba(255, 122, 26, 0.1);
+    border: 1px dashed var(--vit-orange);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    margin-top: 20px;
+  }
+  .fare-price {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--vit-orange);
+    font-family: 'Outfit', sans-serif;
+  }
+</style>
+</head>
+<body style="overflow: auto;">
+
+<div class="app-container" style="height: auto; min-height: 100vh;">
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-badge">VIT</span>
+      </div>
+      <div class="brand-title">
+        <span class="brand-sub">Campus Help Desk</span>
+        <h1>VIT Bhopal <span>Cab & Auto Desk</span></h1>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <a href="index.html" class="nav-item">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+        Campus Map
+      </a>
+      <a href="#" class="nav-item active">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 3C2.1 11.2 2 11.6 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+        Cabs & Autos
+      </a>
+      <a href="campus-services.html" class="nav-item">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Parcel & Rentals
+      </a>
+    </nav>
+  </header>
+
+  <div class="cab-container">
+    <h2>🚕 Campus Cab & Auto Fare Calculator</h2>
+    <p style="color: var(--text-muted); margin-top: 4px;">Calculate estimated fares and book official campus cabs to stations or city center.</p>
+
+    <div class="grid-2">
+      <div class="calc-card">
+        <h3>Calculate Fare</h3>
+        <div class="form-group" style="margin-top: 16px;">
+          <label>Pickup Location</label>
+          <select id="pickup">
+            <option>VIT Bhopal Main Gate</option>
+            <option>Boys Hostel Gate</option>
+            <option>Girls Hostel Gate</option>
+            <option>AB1 Auditorium</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Destination</label>
+          <select id="destination" onchange="calcFare()">
+            <option value="600">Ashta Bus Stand (~25 km)</option>
+            <option value="1200">Bhopal Railway Station (Rani Kamlapati / Bhopal Jn ~65 km)</option>
+            <option value="1500">Raja Bhoj Airport Bhopal (~70 km)</option>
+            <option value="1800">Indore Railway Station / Airport (~120 km)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Vehicle Type</label>
+          <select id="vtype" onchange="calcFare()">
+            <option value="1">Shared Auto (Per Seat)</option>
+            <option value="2">Private Auto</option>
+            <option value="3">Sedan Cab (4 Seater)</option>
+            <option value="4">SUV Cab (6 Seater)</option>
+          </select>
+        </div>
+
+        <div class="fare-estimate">
+          <div style="font-size: 12px; color: var(--text-muted);">Estimated Fare</div>
+          <div class="fare-price" id="fareDisplay">₹150 - ₹200</div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Direct WhatsApp booking with verified driver</div>
+        </div>
+
+        <button onclick="bookWa()" class="action-btn primary" style="width: 100%; margin-top: 16px;">Book via WhatsApp 📲</button>
+      </div>
+
+      <div class="calc-card">
+        <h3>Verified Drivers Directory</h3>
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px;">
+          <div style="background: var(--bg-panel); padding: 12px; border-radius: 8px; border: 1px solid var(--border-line);">
+            <strong>Ramesh Kumar (Sedan Cab)</strong>
+            <p style="font-size: 12px; color: var(--text-muted);">Route: Campus ↔ Bhopal Station / Airport</p>
+            <a href="https://wa.me/919630741753" target="_blank" style="color: var(--wa-green); text-decoration: none; font-size: 13px; font-weight: 700;">+91 96307 41753</a>
+          </div>
+          <div style="background: var(--bg-panel); padding: 12px; border-radius: 8px; border: 1px solid var(--border-line);">
+            <strong>Suresh Auto Services</strong>
+            <p style="font-size: 12px; color: var(--text-muted);">Route: Campus ↔ Ashta & Local Drops</p>
+            <a href="https://wa.me/919630741753" target="_blank" style="color: var(--wa-green); text-decoration: none; font-size: 13px; font-weight: 700;">+91 96307 41753</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calcFare() {
+    const dest = parseInt(document.getElementById('destination').value);
+    const vtype = parseInt(document.getElementById('vtype').value);
+    let fare = dest;
+    if(vtype === 1) fare = Math.round(dest / 4);
+    if(vtype === 3) fare = Math.round(dest * 1.3);
+    if(vtype === 4) fare = Math.round(dest * 1.7);
+    document.getElementById('fareDisplay').textContent = `₹${fare}`;
+  }
+  function bookWa() {
+    window.open('https://wa.me/919630741753?text=Hi,%20I%20want%20to%20book%20a%20cab/auto%20from%20VIT%20Bhopal', '_blank');
+  }
+  calcFare();
+</script>
+</body>
+</html>
