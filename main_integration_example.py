@@ -90,6 +90,51 @@ def chat_ai(query: ChatQuery):
             
         return {"answer": answer, "department": dept, "sources": sources}
 
+import os
+import json
+from datetime import datetime
+
+class CommunityMsg(BaseModel):
+    user_name: str
+    text: str
+
+@app.get("/api/community-chat")
+def get_community_chat():
+    path = "college_chat/chat_data.json"
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"users": [], "messages": []}
+
+@app.post("/api/community-chat")
+def post_community_chat(msg: CommunityMsg):
+    path = "college_chat/chat_data.json"
+    data = {"users": [], "messages": []}
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            pass
+    
+    new_msg = {
+        "user_name": msg.user_name.strip() or "Student",
+        "text": msg.text.strip(),
+        "created_at": datetime.now().strftime("%I:%M %p")
+    }
+    data["messages"].append(new_msg)
+    
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+        
+    return {"status": "ok", "message": new_msg}
+
 # serve the website at http://127.0.0.1:8000/
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 

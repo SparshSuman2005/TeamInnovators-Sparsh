@@ -743,8 +743,15 @@
       </div>
 
       <!-- Live Student Chat Tab -->
-      <div id="chat-mode-live" style="display: none;">
-        <iframe src="http://127.0.0.1:5000" class="student-iframe-container" title="Student Chat Room"></iframe>
+      <div id="chat-mode-live" style="display: none; flex-direction: column; height: 540px;">
+        <div class="chat-messages-container" id="communityChatMessages" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
+          <!-- Loaded dynamically from /api/community-chat -->
+        </div>
+        <form class="chat-input-bar" id="communityChatForm" onsubmit="handleCommunityChatSubmit(event)" style="display: flex; gap: 8px;">
+          <input type="text" id="commStudentName" placeholder="Your Name" value="Student" style="width: 140px; shrink: 0; padding: 12px 14px; border-radius: 100px; border: 1px solid var(--border-line); outline: none; font-size: 14px;" required />
+          <input type="text" id="commMsgInput" placeholder="Type a message to the student community..." style="flex: 1; padding: 12px 18px; border-radius: 100px; border: 1px solid var(--border-line); outline: none; font-size: 14.5px;" required />
+          <button type="submit" class="chat-send-btn">Post 💬</button>
+        </form>
       </div>
     </div>
   </section>
@@ -898,7 +905,57 @@
     document.getElementById('modeAiBtn').classList.toggle('active', mode === 'ai');
     document.getElementById('modeLiveBtn').classList.toggle('active', mode === 'live');
     document.getElementById('chat-mode-ai').style.display = mode === 'ai' ? 'flex' : 'none';
-    document.getElementById('chat-mode-live').style.display = mode === 'live' ? 'block' : 'none';
+    document.getElementById('chat-mode-live').style.display = mode === 'live' ? 'flex' : 'none';
+    if (mode === 'live') loadCommunityChat();
+  }
+
+  async function loadCommunityChat() {
+    const box = document.getElementById('communityChatMessages');
+    try {
+      const res = await fetch('/api/community-chat');
+      if (res.ok) {
+        const data = await res.json();
+        box.innerHTML = '';
+        if (data.messages && data.messages.length > 0) {
+          data.messages.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'chat-bubble ai';
+            div.style.alignSelf = 'flex-start';
+            div.style.maxWidth = '85%';
+            div.innerHTML = `<strong style="color:var(--vit-blue);">👤 ${m.user_name}</strong> <span style="font-size:11px; color:var(--text-muted);">[${m.created_at || 'Now'}]</span><br>${m.text}`;
+            box.appendChild(div);
+          });
+        } else {
+          box.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">No community chat messages yet. Start the conversation below!</div>';
+        }
+        box.scrollTop = box.scrollHeight;
+      }
+    } catch(e) {
+      console.error("Failed to load community chat", e);
+    }
+  }
+
+  async function handleCommunityChatSubmit(e) {
+    e.preventDefault();
+    const nameInput = document.getElementById('commStudentName');
+    const msgInput = document.getElementById('commMsgInput');
+    const name = nameInput.value.trim() || 'Student';
+    const text = msgInput.value.trim();
+    if (!text) return;
+
+    try {
+      const res = await fetch('/api/community-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_name: name, text: text })
+      });
+      if (res.ok) {
+        msgInput.value = '';
+        loadCommunityChat();
+      }
+    } catch(e) {
+      alert("Failed to post message.");
+    }
   }
 
   // AI Chat Submit Handler
