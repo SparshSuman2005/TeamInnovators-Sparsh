@@ -1017,6 +1017,13 @@
       });
       if (res.ok) {
         msgInput.value = '';
+        loadSectionCommunityChat();
+      }
+    } catch(e) {
+      alert("Failed to post message.");
+    }
+  }
+
   // User Auth State & Modal Handlers
   let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
