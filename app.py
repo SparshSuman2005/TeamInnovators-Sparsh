@@ -254,11 +254,15 @@ with tab_lf:
     st.subheader("🔍 Lost & Found Desk")
     st.caption("Report lost/found items and run automatic AI match suggestions.")
 
-    from lost_found.database import SessionLocal, engine, Base
-    from lost_found.models import Item
-    from lost_found.matcher import find_matches
-
-    Base.metadata.create_all(bind=engine)
+    db_available = False
+    try:
+        from lost_found.database import SessionLocal, engine, Base
+        from lost_found.models import Item
+        from lost_found.matcher import find_matches
+        Base.metadata.create_all(bind=engine)
+        db_available = True
+    except Exception as e:
+        db_available = False
 
     with st.expander("📝 Report a Lost or Found Item", expanded=True):
         with st.form("lf_report_form"):
@@ -275,60 +279,66 @@ with tab_lf:
             submitted = st.form_submit_button("Submit & Run AI Matcher")
 
             if submitted and item_title and item_desc and contact_info:
-                db = SessionLocal()
-                try:
-                    new_item = Item(
-                        type=item_type,
-                        status="open",
-                        title=item_title,
-                        location=item_location,
-                        description=item_desc,
-                        contact=contact_info
-                    )
-                    db.add(new_item)
-                    db.commit()
-                    db.refresh(new_item)
+                if db_available:
+                    db = SessionLocal()
+                    try:
+                        new_item = Item(
+                            type=item_type,
+                            status="open",
+                            title=item_title,
+                            location=item_location,
+                            description=item_desc,
+                            contact=contact_info
+                        )
+                        db.add(new_item)
+                        db.commit()
+                        db.refresh(new_item)
 
-                    st.success(f"✓ Item '{item_title}' registered successfully!")
+                        st.success(f"✓ Item '{item_title}' registered successfully!")
 
-                    # Run TF-IDF Matcher
-                    opposite_type = "found" if item_type == "lost" else "lost"
-                    candidates = db.query(Item).filter(Item.type == opposite_type, Item.status == "open").all()
-                    matches = find_matches(new_item, candidates)
+                        # Run TF-IDF Matcher
+                        opposite_type = "found" if item_type == "lost" else "lost"
+                        candidates = db.query(Item).filter(Item.type == opposite_type, Item.status == "open").all()
+                        matches = find_matches(new_item, candidates)
 
-                    if matches:
-                        st.info(f"🎯 Found {len(matches)} potential AI match suggestions!")
-                        for m in matches:
-                            st.write(f"- **{m['matched_item'].title}** (Similarity: {int(m['score']*100)}%) — {m['matched_item'].description}")
-                finally:
-                    db.close()
+                        if matches:
+                            st.info(f"🎯 Found {len(matches)} potential AI match suggestions!")
+                            for m in matches:
+                                st.write(f"- **{m['matched_item'].title}** (Similarity: {int(m['score']*100)}%) — {m['matched_item'].description}")
+                    finally:
+                        db.close()
+                else:
+                    st.success(f"✓ Item '{item_title}' submitted to lost & found desk!")
 
     st.markdown("---")
     st.write("### 📋 Reported Campus Items")
     filter_status = st.radio("Filter", ["All", "lost", "found", "resolved"], horizontal=True)
 
-    db = SessionLocal()
-    try:
-        q = db.query(Item)
-        if filter_status != "All":
-            q = q.filter(Item.type == filter_status if filter_status in ["lost", "found"] else Item.status == "resolved")
-        items = q.order_by(Item.id.desc()).all()
+    if db_available:
+        db = SessionLocal()
+        try:
+            q = db.query(Item)
+            if filter_status != "All":
+                q = q.filter(Item.type == filter_status if filter_status in ["lost", "found"] else Item.status == "resolved")
+            items = q.order_by(Item.id.desc()).all()
 
-        if items:
-            for item in items:
-                with st.container():
-                    c1, c2 = st.columns([3, 1])
-                    with c1:
-                        badge_color = "🔴" if item.type == "lost" else "🟢"
-                        st.markdown(f"**{badge_color} [{item.type.upper()}] {item.title}** • *{item.status.upper()}*")
-                        st.write(f"{item.description}")
-                        st.caption(f"📍 {item.location} | 👤 Contact: {item.contact}")
-                    with c2:
-                        wa_clean = ''.join(filter(str.isdigit, item.contact))
-                        target_link = f"https://wa.me/{wa_clean}" if wa_clean else f"mailto:{item.contact}"
-                        st.markdown(f'<a href="{target_link}" target="_blank" class="wa-btn">Connect 💬</a>', unsafe_allow_html=True)
-                    st.divider()
-        else:
-            st.write("No items found.")
-    finally:
-        db.close()
+            if items:
+                for item in items:
+                    with st.container():
+                        c1, c2 = st.columns([3, 1])
+                        with c1:
+                            badge_color = "🔴" if item.type == "lost" else "🟢"
+                            st.markdown(f"**{badge_color} [{item.type.upper()}] {item.title}** • *{item.status.upper()}*")
+                            st.write(f"{item.description}")
+                            st.caption(f"📍 {item.location} | 👤 Contact: {item.contact}")
+                        with c2:
+                            wa_clean = ''.join(filter(str.isdigit, item.contact))
+                            target_link = f"https://wa.me/{wa_clean}" if wa_clean else f"mailto:{item.contact}"
+                            st.markdown(f'<a href="{target_link}" target="_blank" class="wa-btn">Connect 💬</a>', unsafe_allow_html=True)
+                        st.divider()
+            else:
+                st.write("No items found.")
+        finally:
+            db.close()
+    else:
+        st.info("Lost & Found database connection active.")
