@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Chat - Campus Help</title>
+    <style>
+      :root {
+        --text: #172033;
+        --muted: #657083;
+        --line: #dbe3ee;
+        --primary: #3457d5;
+        --green: #138a5b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family: Inter, "Segoe UI", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(52, 87, 213, 0.14), transparent 32rem),
+          linear-gradient(135deg, #eef2f6 0%, #f8fafc 52%, #eef8f3 100%);
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 28px;
+        background: rgba(255, 255, 255, 0.84);
+        border-bottom: 1px solid rgba(219, 227, 238, 0.9);
+        backdrop-filter: blur(14px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), var(--green));
+        border-radius: 8px;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 11px;
+        border-radius: 999px;
+      }
+
+      .nav a:hover,
+      .nav a.active {
+        color: var(--primary);
+        background: #e8edff;
+      }
+
+      .frame-wrap {
+        width: min(1100px, calc(100% - 32px));
+        margin: 26px auto 42px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(34, 45, 70, 0.12);
+        overflow: hidden;
+      }
+
+      .frame-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .frame-head h1 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .frame-head span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      iframe {
+        display: block;
+        width: 100%;
+        height: calc(100vh - 150px);
+        min-height: 560px;
+        border: 0;
+        background: #fff;
+      }
+
+      @media (max-width: 700px) {
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 13px 16px;
+        }
+
+        .nav {
+          justify-content: flex-start;
+        }
+
+        iframe {
+          height: calc(100vh - 190px);
+          min-height: 520px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">C</div>
+        <span>Campus Help</span>
+      </div>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/lost-found.html">Lost &amp; Found</a>
+        <a href="/cab.html">Campus Cab</a>
+        <a href="/chat.html" class="active">College Chat</a>
+      </nav>
+    </header>
+
+    <main class="frame-wrap">
+      <div class="frame-head">
+        <h1>College Chat</h1>
+        <span>Runs through the existing chat app</span>
+      </div>
+      <iframe src="http://127.0.0.1:5000" title="College Chat"></iframe>
+    </main>
+  </body>
+</html>

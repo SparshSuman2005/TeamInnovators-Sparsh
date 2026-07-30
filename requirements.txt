@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+sqlalchemy
+scikit-learn
+pydantic
+flask
+flask-socketio
+werkzeug
