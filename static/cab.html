@@ -123,7 +123,7 @@
     color:var(--muted); font-size:11px; font-weight:800;
   }
   .sort-group{display:flex; gap:8px; font-size:13px; flex-wrap:wrap;}
-  .sort-btn{
+  .sort-btn, .fuel-chip{
     background:var(--panel);
     border:1px solid var(--line);
     color:var(--muted);
@@ -133,8 +133,8 @@
     font-weight:700;
     transition:all .15s;
   }
-  .sort-btn:hover{border-color:var(--orange); color:var(--orange);}
-  .sort-btn.active{background:var(--orange-soft); border-color:var(--orange); color:var(--orange);}
+  .sort-btn:hover, .fuel-chip:hover{border-color:var(--orange); color:var(--orange);}
+  .sort-btn.active, .fuel-chip.active{background:var(--orange-soft); border-color:var(--orange); color:var(--orange);}
   .grid{
     max-width:1180px;
     margin:22px auto 60px;
@@ -223,9 +223,13 @@
 
 <div class="controls">
   <div class="search-box">
-    <input id="searchInput" type="text" placeholder="     Search a car - e.g. Creta, Fronx, Brezza">
+    <input id="searchInput" type="text" placeholder="Search a car - e.g. Creta, Fronx, Brezza...">
   </div>
   <div class="sort-group">
+    <button class="fuel-chip active" data-fuel="all">All Fuels</button>
+    <button class="fuel-chip" data-fuel="petrol">Petrol</button>
+    <button class="fuel-chip" data-fuel="diesel">Diesel</button>
+    <button class="fuel-chip" data-fuel="cng">CNG</button>
     <button class="sort-btn active" data-sort="default">Default</button>
     <button class="sort-btn" data-sort="low">Price: Low to High</button>
     <button class="sort-btn" data-sort="high">Price: High to Low</button>
@@ -255,7 +259,9 @@
   const grid = document.getElementById('grid');
   const searchInput = document.getElementById('searchInput');
   const sortBtns = document.querySelectorAll('.sort-btn');
+  const fuelChips = document.querySelectorAll('.fuel-chip');
   let currentSort = 'default';
+  let currentFuel = 'all';
 
   function waLink(carName){
     const msg = encodeURIComponent(`Hi, I'd like to book the ${carName} (24 Hours) through the Campus Cab Desk.`);
@@ -264,7 +270,11 @@
 
   function render(){
     const q = searchInput.value.trim().toLowerCase();
-    let list = cars.filter(c => c.name.toLowerCase().includes(q));
+    let list = cars.filter(c => {
+      const matchName = c.name.toLowerCase().includes(q);
+      const matchFuel = currentFuel === 'all' || c.fuel.toLowerCase().includes(currentFuel);
+      return matchName && matchFuel;
+    });
 
     if(currentSort === 'low') list = list.slice().sort((a,b)=>a.price-b.price);
     if(currentSort === 'high') list = list.slice().sort((a,b)=>b.price-a.price);
@@ -272,7 +282,7 @@
     grid.innerHTML = '';
 
     if(list.length === 0){
-      grid.innerHTML = `<div class="empty-state">No vehicle matches "${q}". Try a different name.</div>`;
+      grid.innerHTML = `<div class="empty-state">No vehicle matches selected filters. Try adjusting your search.</div>`;
       return;
     }
 
@@ -289,7 +299,7 @@
           <h3>${car.name}</h3>
           <span class="fuel-tag">${car.fuel}</span>
           <div class="price-row">
-            <span class="price">Rs ${car.price.toLocaleString('en-IN')}</span>
+            <span class="price">₹${car.price.toLocaleString('en-IN')}</span>
             <span class="price-unit">/ 24 Hours</span>
           </div>
           <a class="book-btn" href="${waLink(car.name)}" target="_blank" rel="noopener">Book on WhatsApp</a>
@@ -305,6 +315,15 @@
       sortBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentSort = btn.dataset.sort;
+      render();
+    });
+  });
+
+  fuelChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      fuelChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFuel = chip.dataset.fuel;
       render();
     });
   });

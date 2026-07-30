@@ -7,7 +7,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'college-chat-secret-key-change-later'
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 DATA_FILE = 'chat_data.json'
 
@@ -203,4 +203,4 @@ def handle_send_message(data_from_client):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=5000)
+    socketio.run(app, debug=False, host='127.0.0.1', port=5000)

@@ -13,11 +13,21 @@ def find_matches(target_item, candidates: list):
     if not candidates:
         return []
 
-    texts = [f"{target_item.title} {target_item.description}"]
-    texts += [f"{c.title} {c.description}" for c in candidates]
+    target_text = f"{target_item.title or ''} {target_item.description or ''}".strip()
+    if not target_text:
+        return []
 
-    vec = TfidfVectorizer(stop_words="english")
-    tfidf = vec.fit_transform(texts)
+    texts = [target_text] + [f"{c.title or ''} {c.description or ''}".strip() for c in candidates]
+
+    try:
+        vec = TfidfVectorizer(stop_words="english")
+        tfidf = vec.fit_transform(texts)
+    except ValueError:
+        try:
+            vec = TfidfVectorizer(stop_words=None, min_df=1)
+            tfidf = vec.fit_transform(texts)
+        except ValueError:
+            return []
 
     sims = cosine_similarity(tfidf[0:1], tfidf[1:]).flatten()
 
@@ -26,3 +36,4 @@ def find_matches(target_item, candidates: list):
     ]
     results.sort(key=lambda x: x[1], reverse=True)
     return results
+

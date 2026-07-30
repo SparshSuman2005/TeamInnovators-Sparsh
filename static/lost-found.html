@@ -292,8 +292,28 @@
         </div>
 
         <div id="browse" class="panel-section">
-          <button onclick="loadItems()">Refresh List</button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;">
+            <button onclick="loadItems()">Refresh List</button>
+            <select id="filter-type" onchange="loadItems()" style="width: auto; margin-bottom: 0; padding: 10px 14px;">
+              <option value="">All Types</option>
+              <option value="lost">Lost Only</option>
+              <option value="found">Found Only</option>
+            </select>
+            <select id="filter-status" onchange="loadItems()" style="width: auto; margin-bottom: 0; padding: 10px 14px;">
+              <option value="">All Statuses</option>
+              <option value="open" selected>Open Only</option>
+              <option value="resolved">Resolved Only</option>
+            </select>
+          </div>
           <div id="items-list" style="margin-top: 16px"></div>
+        </div>
+
+        <div id="matches-section" class="panel-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h2 id="matches-title" style="margin:0; font-size:20px;">AI Match Suggestions</h2>
+            <button onclick="showTab('browse')" style="background:var(--panel-soft); color:var(--text); border:1px solid var(--line);">Back to Browse</button>
+          </div>
+          <div id="matches-list"></div>
         </div>
 
         <div id="status"></div>
@@ -310,10 +330,13 @@
         document
           .querySelectorAll(".panel-section")
           .forEach((p) => p.classList.remove("active"));
-        document
-          .querySelector(`.tab[onclick="showTab('${name}')"]`)
-          .classList.add("active");
-        document.getElementById(name).classList.add("active");
+        
+        const tabEl = document.querySelector(`.tab[onclick="showTab('${name}')"]`);
+        if (tabEl) tabEl.classList.add("active");
+        
+        const secEl = document.getElementById(name);
+        if (secEl) secEl.classList.add("active");
+        
         if (name === "browse") loadItems();
       }
 
@@ -336,47 +359,124 @@
 
         if (res.ok) {
           const data = await res.json();
-          setStatus(`Submitted! Item #${data.id}. Checking matches...`);
+          setStatus(`Submitted! Item #${data.id}. Analyzing AI matches...`);
           document.getElementById(`${type}-title`).value = "";
           document.getElementById(`${type}-desc`).value = "";
           document.getElementById(`${type}-location`).value = "";
           document.getElementById(`${type}-contact`).value = "";
-          checkMatches(data.id);
+          viewItemMatches(data.id, data.title);
         } else {
-          setStatus("Something went wrong. Check server terminal.", true);
+          setStatus("Something went wrong when submitting.", true);
         }
       }
 
-      async function checkMatches(itemId) {
-        const res = await fetch(`${API}/lost-found/matches/${itemId}`);
-        const matches = await res.json();
-        if (matches.length > 0) {
-          setStatus(`${matches.length} possible match(es) found! Check Browse tab.`);
-        } else {
-          setStatus("Submitted. No matches yet. We'll keep checking.");
+      async function viewItemMatches(itemId, itemTitle) {
+        document.querySelectorAll(".panel-section").forEach((p) => p.classList.remove("active"));
+        document.getElementById("matches-section").classList.add("active");
+        
+        const titleEl = document.getElementById("matches-title");
+        titleEl.textContent = itemTitle ? `AI Matches for "${itemTitle}"` : `AI Match Suggestions`;
+        
+        const container = document.getElementById("matches-list");
+        container.innerHTML = `<p style="color:#657083;">Calculating TF-IDF cosine similarity...</p>`;
+
+        try {
+          const res = await fetch(`${API}/lost-found/matches/${itemId}`);
+          const matches = await res.json();
+          container.innerHTML = "";
+
+          if (!matches || matches.length === 0) {
+            container.innerHTML = `
+              <div class="card" style="text-align:center; padding:24px;">
+                <p>No high-probability matches found right now.</p>
+                <p style="font-size:13px; color:var(--muted)">Our AI matcher continuously scans new submissions automatically.</p>
+              </div>`;
+            return;
+          }
+
+          matches.forEach((m) => {
+            const item = m.item;
+            const pct = Math.round(m.score * 100);
+            const div = document.createElement("div");
+            div.className = "card";
+            div.style.borderLeft = "4px solid var(--primary)";
+            div.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="badge ${item.type}">${item.type.toUpperCase()}</span>
+                <span style="font-weight:800; color:var(--primary); font-size:14px;">${pct}% Match Confidence</span>
+              </div>
+              <h3>${item.title}</h3>
+              <p>${item.description}</p>
+              <p>📍 Location: ${item.location || "not specified"} | 📞 Contact: <strong>${item.contact}</strong></p>
+              <p>Status: ${item.status}</p>
+            `;
+            container.appendChild(div);
+          });
+        } catch (e) {
+          container.innerHTML = `<p style="color:var(--red);">Failed to load matches.</p>`;
+        }
+      }
+
+      async function resolveItem(itemId) {
+        if (!confirm("Are you sure you want to mark this item as resolved?")) return;
+        try {
+          const res = await fetch(`${API}/lost-found/resolve/${itemId}`, { method: "POST" });
+          if (res.ok) {
+            setStatus(`Item #${itemId} marked as resolved!`);
+            loadItems();
+          } else {
+            setStatus("Could not resolve item.", true);
+          }
+        } catch (e) {
+          setStatus("Error resolving item.", true);
         }
       }
 
       async function loadItems() {
-        const res = await fetch(`${API}/lost-found/items`);
+        const type = document.getElementById("filter-type") ? document.getElementById("filter-type").value : "";
+        const status = document.getElementById("filter-status") ? document.getElementById("filter-status").value : "";
+
+        let url = `${API}/lost-found/items?`;
+        if (type) url += `type=${type}&`;
+        if (status) url += `status=${status}`;
+
+        const res = await fetch(url);
         const items = await res.json();
         const container = document.getElementById("items-list");
         container.innerHTML = "";
 
-        if (items.length === 0) {
-          container.innerHTML = '<p style="color:#657083;">No items yet.</p>';
+        if (!items || items.length === 0) {
+          container.innerHTML = '<p style="color:#657083; text-align:center; padding:20px;">No items match selected filters.</p>';
           return;
         }
 
         items.forEach((item) => {
           const div = document.createElement("div");
           div.className = "card";
+          
+          let resolveBtnHtml = item.status === "open"
+            ? `<button onclick="resolveItem(${item.id})" style="background:#eef2f6; color:var(--text); border:1px solid var(--line); font-size:13px; padding:6px 12px;">Mark Resolved</button>`
+            : `<span style="color:var(--green); font-weight:800; font-size:13px;">✓ Resolved</span>`;
+
+          let matchBtnHtml = item.status === "open"
+            ? `<button onclick="viewItemMatches(${item.id}, '${item.title.replace(/'/g, "\\'")}')" style="background:var(--primary); color:#fff; font-size:13px; padding:6px 12px;">Check AI Matches</button>`
+            : ``;
+
           div.innerHTML = `
-            <span class="badge ${item.type}">${item.type.toUpperCase()}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="badge ${item.type}">${item.type.toUpperCase()}</span>
+              <span style="font-size:12px; color:var(--muted);">${new Date(item.created_at).toLocaleDateString()}</span>
+            </div>
             <h3>${item.title}</h3>
             <p>${item.description}</p>
-            <p>Location: ${item.location || "not specified"} | Contact: ${item.contact}</p>
-            <p>Status: ${item.status}</p>
+            <p>📍 Location: ${item.location || "Not specified"} &nbsp;|&nbsp; 📞 Contact: <strong>${item.contact}</strong></p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; border-top:1px solid var(--line); padding-top:10px;">
+              <div>Status: <strong>${item.status}</strong></div>
+              <div style="display:flex; gap:8px;">
+                ${matchBtnHtml}
+                ${resolveBtnHtml}
+              </div>
+            </div>
           `;
           container.appendChild(div);
         });

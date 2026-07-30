@@ -19,13 +19,34 @@ app.add_middleware(
 
 app.include_router(lost_found_router)
 
-# other teammates add their routers here same way:
-# app.include_router(other_feature_router)
+@app.get("/api/stats")
+def get_stats():
+    from lost_found.database import SessionLocal
+    from lost_found.models import Item
+    db = SessionLocal()
+    try:
+        lost_count = db.query(Item).filter(Item.type == "lost", Item.status == "open").count()
+        found_count = db.query(Item).filter(Item.type == "found", Item.status == "open").count()
+        resolved_count = db.query(Item).filter(Item.status == "resolved").count()
+    except Exception:
+        lost_count, found_count, resolved_count = 0, 0, 0
+    finally:
+        db.close()
+
+    chat_online = is_port_open(5000)
+    return {
+        "lost_open": lost_count,
+        "found_open": found_count,
+        "resolved_total": resolved_count,
+        "cabs_available": 8,
+        "chat_online": chat_online
+    }
 
 app.mount("/cab-assets", StaticFiles(directory="campus_cab"), name="cab-assets")
 
 # serve the website at http://127.0.0.1:8000/
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
 
 
 def is_port_open(port):

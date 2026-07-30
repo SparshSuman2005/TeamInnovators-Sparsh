@@ -262,19 +262,23 @@
         <aside class="status-panel">
           <div class="status-row">
             <span>Website</span>
-            <strong>Unified</strong>
+            <strong style="color:var(--green)">● Online</strong>
           </div>
           <div class="status-row">
-            <span>Lost &amp; Found</span>
-            <strong>Available</strong>
+            <span>Lost Items Open</span>
+            <strong id="stat-lost">...</strong>
           </div>
           <div class="status-row">
-            <span>Cab Booking</span>
-            <strong>Available</strong>
+            <span>Found Items Open</span>
+            <strong id="stat-found">...</strong>
           </div>
           <div class="status-row">
-            <span>Chat</span>
-            <strong>Embedded</strong>
+            <span>Cab Desk</span>
+            <strong id="stat-cab">8 Vehicles</strong>
+          </div>
+          <div class="status-row">
+            <span>College Chat</span>
+            <strong id="stat-chat">Connecting...</strong>
           </div>
         </aside>
       </section>
@@ -283,24 +287,43 @@
         <a class="service-card" href="/lost-found.html">
           <span class="service-label lost">MATCH ITEMS</span>
           <h2>Lost &amp; Found</h2>
-          <p>Report lost or found items and check possible matches from the campus list.</p>
-          <span class="service-action">Open Lost &amp; Found</span>
+          <p>Report lost or found items with smart AI TF-IDF match suggestions and instant contact connection.</p>
+          <span class="service-action">Open Lost &amp; Found &rarr;</span>
         </a>
 
         <a class="service-card" href="/cab.html">
           <span class="service-label cab">BOOK RIDES</span>
           <h2>Campus Cab</h2>
-          <p>Browse available vehicles, compare prices, and book through WhatsApp.</p>
-          <span class="service-action">Open Cab Desk</span>
+          <p>Browse available campus vehicles, compare 24-hr rates, and book directly on WhatsApp.</p>
+          <span class="service-action">Open Cab Desk &rarr;</span>
         </a>
 
         <a class="service-card" href="/chat.html">
           <span class="service-label chat">LIVE ROOM</span>
           <h2>College Chat</h2>
-          <p>Use the approved student chat room without leaving the main website.</p>
-          <span class="service-action">Open Chat</span>
+          <p>Use the admin-approved student chat room for real-time campus discussions and admin management.</p>
+          <span class="service-action">Open Chat &rarr;</span>
         </a>
       </section>
     </main>
+
+    <script>
+      async function loadStats() {
+        try {
+          const res = await fetch('/api/stats');
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById('stat-lost').textContent = `${data.lost_open} open`;
+            document.getElementById('stat-found').textContent = `${data.found_open} open`;
+            document.getElementById('stat-cab').textContent = `${data.cabs_available} Vehicles`;
+            document.getElementById('stat-chat').textContent = data.chat_online ? '● Active' : 'Offline';
+            document.getElementById('stat-chat').style.color = data.chat_online ? 'var(--green)' : 'var(--orange)';
+          }
+        } catch (e) {
+          console.error("Failed to load stats", e);
+        }
+      }
+      loadStats();
+    </script>
   </body>
 </html>
