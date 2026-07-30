@@ -3,11 +3,12 @@
 {% block title %}Register - College Chat{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container auth-card">
     <h2>Create Account</h2>
+    <p class="auth-kicker">Use your VIT Bhopal email to join the chat.</p>
     <form method="POST" action="{{ url_for('register_page') }}">
         <input type="text" name="name" placeholder="Full Name" required>
-        <input type="email" name="email" placeholder="you@college.edu" required>
+        <input type="email" name="email" placeholder="you@vitbhopal.ac.in" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit">Register</button>
     </form>

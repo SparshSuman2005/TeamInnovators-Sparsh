@@ -3,10 +3,11 @@
 {% block title %}Login - College Chat{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container auth-card">
     <h2>Login</h2>
+    <p class="auth-kicker">Welcome back to your campus room.</p>
     <form method="POST" action="{{ url_for('login_page') }}">
-        <input type="email" name="email" placeholder="you@college.edu" required>
+        <input type="email" name="email" placeholder="you@vitbhopal.ac.in" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit">Login</button>
     </form>
