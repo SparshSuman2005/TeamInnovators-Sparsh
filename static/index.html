@@ -530,6 +530,7 @@
     <div class="status-pill-head">
       <span class="pulse-dot-head"></span> Desk Open — 24 Hours
     </div>
+    <button class="tab-btn" onclick="switchTab('community')" style="background: var(--vit-orange-soft); color: var(--vit-orange); border: 1px solid #ffe3d1; font-weight: 800;">🔐 Login / Register</button>
     <button class="theme-btn" id="themeToggleBtn" title="Toggle Theme">☀️</button>
   </div>
 </header>
@@ -760,15 +761,18 @@
   <!-- ================= SECTION 2B: COLLEGE COMMUNITY CHAT ================= -->
   <section id="section-community" class="app-section">
     <div class="chat-section-wrap">
-      <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-line); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800;">💬 Live Student College Chat</h2>
-          <p style="color: var(--text-muted); font-size: 13px; margin-top: 2px;">Real-time student discussions, cab sharing, and campus announcements</p>
-        </div>
-        <span class="status-pill-head">● Live Feed</span>
+      <div class="chat-mode-tabs">
+        <button class="chat-mode-btn active" id="secCommPortalBtn" onclick="switchCommSubMode('portal')">🔐 Verified Student Login / Register</button>
+        <button class="chat-mode-btn" id="secCommBoardBtn" onclick="switchCommSubMode('board')">💬 Quick Community Feed</button>
       </div>
 
-      <div style="display: flex; flex-direction: column; height: 520px;">
+      <!-- Verified Student Auth & Chat Portal -->
+      <div id="comm-sub-portal" style="display: block; width: 100%; height: 580px;">
+        <iframe src="http://127.0.0.1:5000" class="student-iframe-container" style="width:100%; height:100%; border:none;" title="College Chat Login & Portal"></iframe>
+      </div>
+
+      <!-- Quick Community Feed -->
+      <div id="comm-sub-board" style="display: none; flex-direction: column; height: 580px;">
         <div class="chat-messages-container" id="sectionCommunityMessages" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
           <!-- Loaded dynamically from /api/community-chat -->
         </div>
@@ -985,6 +989,14 @@
     document.getElementById('chat-mode-ai').style.display = mode === 'ai' ? 'flex' : 'none';
     document.getElementById('chat-mode-live').style.display = mode === 'live' ? 'flex' : 'none';
     if (mode === 'live') loadCommunityChat();
+  }
+
+  function switchCommSubMode(mode) {
+    document.getElementById('secCommPortalBtn').classList.toggle('active', mode === 'portal');
+    document.getElementById('secCommBoardBtn').classList.toggle('active', mode === 'board');
+    document.getElementById('comm-sub-portal').style.display = mode === 'portal' ? 'block' : 'none';
+    document.getElementById('comm-sub-board').style.display = mode === 'board' ? 'flex' : 'none';
+    if (mode === 'board') loadSectionCommunityChat();
   }
 
   async function loadCommunityChat() {
