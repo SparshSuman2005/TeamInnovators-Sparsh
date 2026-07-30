@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Cab Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1f26;
+    --muted:#6b7280;
+    --line:#eceae4;
+    --paper:#ffffff;
+    --panel:#faf9f6;
+    --orange:#ff7a1a;
+    --orange-soft:#fff1e6;
+    --wa-green:#25d366;
+    --wa-green-dark:#1da851;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    max-width:1180px;
+    margin:0 auto;
+    padding:36px 20px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:48px;height:48px;
+    border-radius:12px;
+    background:var(--orange-soft);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--orange);
+    flex-shrink:0;
+  }
+  .brand-text .eyebrow{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--orange);
+  }
+  .brand-text h1{
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    font-size:24px;
+    margin:2px 0 0;
+    color:var(--ink);
+  }
+  .open-pill{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    font-weight:500;
+    color:var(--wa-green-dark);
+    background:#eefdf3;
+    border:1px solid #cdf3dc;
+    padding:9px 16px;
+    border-radius:100px;
+  }
+  .open-pill .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--wa-green);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1; transform:scale(1);}
+    50%{opacity:0.55; transform:scale(0.85);}
+  }
+
+  /* ---------- controls ---------- */
+  .controls{
+    max-width:1180px;
+    margin:8px auto 0;
+    padding:0 20px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .search-box{position:relative; flex:1; min-width:220px;}
+  .search-box input{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:12px 14px 12px 38px;
+    border-radius:10px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    outline:none;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .search-box input:focus{border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-soft);}
+  .search-box::before{
+    content:"⌕";
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    color:var(--muted); font-size:16px;
+  }
+  .sort-group{display:flex; gap:8px; font-size:13px;}
+  .sort-btn{
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:500;
+    transition:all .15s;
+  }
+  .sort-btn:hover{border-color:var(--orange); color:var(--orange);}
+  .sort-btn.active{background:var(--orange-soft); border-color:var(--orange); color:var(--orange);}
+
+  /* ---------- grid ---------- */
+  .grid{
+    max-width:1180px;
+    margin:22px auto 60px;
+    padding:0 20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:20px;
+  }
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    opacity:0;
+    transform:translateY(16px);
+    animation:riseIn .55s ease forwards;
+  }
+  .card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 14px 32px -18px rgba(28,31,38,0.25);
+    border-color:#e2ded4;
+  }
+  @keyframes riseIn{to{opacity:1; transform:translateY(0);}}
+
+  .card-media{
+    position:relative;
+    background:var(--panel);
+    aspect-ratio:4/3;
+    overflow:hidden;
+  }
+  .card-media img{
+    width:100%;height:100%;object-fit:cover;
+    transition:transform .5s ease;
+  }
+  .card:hover .card-media img{transform:scale(1.06);}
+  .badge{
+    position:absolute; top:10px; right:10px;
+    background:rgba(255,255,255,0.92);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-size:11px;
+    font-weight:600;
+    padding:5px 9px;
+    border-radius:100px;
+  }
+  .card-body{
+    padding:16px 16px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    flex:1;
+  }
+  .card-body h3{
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    margin:0;
+    color:var(--ink);
+  }
+  .fuel-tag{
+    align-self:flex-start;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:var(--muted);
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:3px 9px;
+    border-radius:6px;
+  }
+  .price-row{display:flex; align-items:baseline; gap:6px; margin-top:2px;}
+  .price{font-size:21px; font-weight:700; color:var(--ink); font-family:'Poppins',sans-serif;}
+  .price-unit{font-size:12px; color:var(--muted);}
+  .book-btn{
+    margin-top:auto;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    text-decoration:none;
+    background:var(--wa-green);
+    color:#fff;
+    font-weight:600;
+    font-size:13.5px;
+    padding:11px 14px;
+    border-radius:10px;
+    transition:background .15s, transform .15s;
+  }
+  .book-btn:hover{background:var(--wa-green-dark); transform:translateY(-1px);}
+  .book-btn svg{width:15px;height:15px;flex-shrink:0;}
+
+  .footer{
+    max-width:1180px; margin:0 auto 44px; padding:0 20px;
+    text-align:center; color:var(--muted); font-size:13px;
+  }
+  .footer a{color:var(--orange); text-decoration:none; font-weight:600;}
+
+  .empty-state{
+    grid-column:1/-1; text-align:center; padding:60px 20px;
+    color:var(--muted); font-size:13.5px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .open-pill .dot,.card{animation:none;}
+    .card{opacity:1; transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">CC</div>
+    <div class="brand-text">
+      <div class="eyebrow">Campus Help Desk</div>
+      <h1>Cab &amp; Car Service</h1>
+    </div>
+  </div>
+  <div class="open-pill"><span class="dot"></span> Booking desk open — 24 hours</div>
+</header>
+
+<div class="controls">
+  <div class="search-box">
+    <input id="searchInput" type="text" placeholder="Search a car — e.g. Creta, Fronx, Brezza…">
+  </div>
+  <div class="sort-group">
+    <button class="sort-btn active" data-sort="default">Default</button>
+    <button class="sort-btn" data-sort="low">Price: Low → High</button>
+    <button class="sort-btn" data-sort="high">Price: High → Low</button>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="footer">
+  All bookings route to the campus desk on <a href="https://wa.me/919630741753" target="_blank" rel="noopener">+91 96307 41753</a> via WhatsApp
+</div>
+
+<script>
+  const WA_NUMBER = "919630741753";
+
+  const cars = [
+    { name: "Ertiga", fuel: "Petrol", price: 2800, img: "WhatsApp Image 2026-07-30 at 16.13.24.jpeg" },
+    { name: "Punch Petrol", fuel: "Petrol", price: 3000, img: "WhatsApp Image 2026-07-30 at 15.57.18.jpeg" },
+    { name: "Creta Diesel", fuel: "Diesel", price: 4200, img: "WhatsApp Image 2026-07-30 at 15.57.23.jpeg" },
+    { name: "Creta Petrol", fuel: "Petrol", price: 4100, img: "WhatsApp Image 2026-07-30 at 15.57.34.jpeg" },
+    { name: "Exter CNG", fuel: "CNG", price: 3200, img: "WhatsApp Image 2026-07-30 at 15.57.36.jpeg" },
+    { name: "Baleno Delta Petrol+CNG", fuel: "Petrol+CNG", price: 3500, img: "WhatsApp Image 2026-07-30 at 16.10.03.jpeg" },
+    { name: "Fronx", fuel: "Petrol", price: 3550, img: "WhatsApp Image 2026-07-30 at 15.57.23.jpeg" },
+    { name: "Brezza LXI", fuel: "Petrol", price: 3100, img: "WhatsApp Image 2026-07-30 at 16.10.03.jpeg" },
+  ];
+
+  const grid = document.getElementById('grid');
+  const searchInput = document.getElementById('searchInput');
+  const sortBtns = document.querySelectorAll('.sort-btn');
+  let currentSort = 'default';
+
+  function waLink(carName){
+    const msg = encodeURIComponent(`Hi, I'd like to book the ${carName} (24 Hours) through the Campus Cab Desk.`);
+    return `https://wa.me/${WA_NUMBER}?text=${msg}`;
+  }
+
+  function render(){
+    const q = searchInput.value.trim().toLowerCase();
+    let list = cars.filter(c => c.name.toLowerCase().includes(q));
+
+    if(currentSort === 'low') list = list.slice().sort((a,b)=>a.price-b.price);
+    if(currentSort === 'high') list = list.slice().sort((a,b)=>b.price-a.price);
+
+    grid.innerHTML = '';
+
+    if(list.length === 0){
+      grid.innerHTML = `<div class="empty-state">No vehicle matches "${q}". Try a different name.</div>`;
+      return;
+    }
+
+    list.forEach((car, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.animationDelay = (i * 0.05) + 's';
+      card.innerHTML = `
+        <div class="card-media">
+          <img src="${car.img}" alt="${car.name}" loading="lazy">
+          <div class="badge">24 Hrs</div>
+        </div>
+        <div class="card-body">
+          <h3>${car.name}</h3>
+          <span class="fuel-tag">${car.fuel}</span>
+          <div class="price-row">
+            <span class="price">₹${car.price.toLocaleString('en-IN')}</span>
+            <span class="price-unit">/ 24 Hours</span>
+          </div>
+          <a class="book-btn" href="${waLink(car.name)}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.28-1.38a9.9 9.9 0 0 0 4.76 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.51 2 12.04 2zm5.8 14.03c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.8-.11-.42-.13-.95-.31-1.63-.6-2.87-1.24-4.74-4.14-4.88-4.33-.14-.19-1.17-1.56-1.17-2.98 0-1.42.74-2.11 1-2.4.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.15.07.15.12.32.02.51-.1.19-.15.31-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.44.29.15.46.13.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.63-.14.26.09 1.63.77 1.91.91.29.15.48.22.55.34.07.13.07.71-.17 1.39z"/></svg>
+            Book on WhatsApp
+          </a>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  searchInput.addEventListener('input', render);
+  sortBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sortBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSort = btn.dataset.sort;
+      render();
+    });
+  });
+
+  render();
+</script>
+
+</body>
+</html>
