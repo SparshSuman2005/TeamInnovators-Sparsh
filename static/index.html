@@ -530,10 +530,60 @@
     <div class="status-pill-head">
       <span class="pulse-dot-head"></span> Desk Open — 24 Hours
     </div>
-    <button class="tab-btn" onclick="switchTab('community')" style="background: var(--vit-orange-soft); color: var(--vit-orange); border: 1px solid #ffe3d1; font-weight: 800;">🔐 Login / Register</button>
+    <div id="userAuthContainer">
+      <button class="tab-btn" onclick="openAuthModal('login')" style="background: var(--vit-orange-soft); color: var(--vit-orange); border: 1px solid #ffe3d1; font-weight: 800;">🔐 Sign In / Register</button>
+    </div>
     <button class="theme-btn" id="themeToggleBtn" title="Toggle Theme">☀️</button>
   </div>
 </header>
+
+<!-- Auth Modal Drawer -->
+<div id="authModal" class="modal-overlay hidden" style="position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s;">
+  <div class="modal-card" style="background: var(--bg-panel); width: min(420px, calc(100% - 32px)); padding: 28px; border-radius: 16px; position: relative; box-shadow: var(--shadow-main);">
+    <button onclick="closeAuthModal()" style="position: absolute; top: 16px; right: 16px; border: none; background: none; font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</button>
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border-line); padding-bottom: 8px;">
+      <button id="authTabLoginBtn" onclick="switchAuthTab('login')" style="flex:1; padding: 8px; border:none; background:none; font-family:'Outfit',sans-serif; font-weight:800; font-size:16px; color:var(--vit-blue); border-bottom: 2px solid var(--vit-blue); cursor:pointer;">Sign In</button>
+      <button id="authTabRegBtn" onclick="switchAuthTab('register')" style="flex:1; padding: 8px; border:none; background:none; font-family:'Outfit',sans-serif; font-weight:800; font-size:16px; color:var(--text-muted); cursor:pointer;">Create Account</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="authLoginForm" onsubmit="handleAuthLoginSubmit(event)">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">University Email *</label>
+          <input type="email" id="loginEmail" placeholder="you@vitbhopal.ac.in" required style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-line); outline: none;" />
+        </div>
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Password *</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-line); outline: none;" />
+        </div>
+        <div id="loginErrorMsg" style="color: #dc2626; font-size: 13px; display: none;"></div>
+        <button type="submit" class="chat-send-btn" style="width: 100%; border-radius: 8px; margin-top: 6px;">Sign In to Campus Helpdesk</button>
+      </div>
+    </form>
+
+    <!-- Register Form -->
+    <form id="authRegisterForm" onsubmit="handleAuthRegisterSubmit(event)" style="display: none;">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Full Name *</label>
+          <input type="text" id="regName" placeholder="e.g. Sparsh Kumar Suman" required style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-line); outline: none;" />
+        </div>
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">University Email *</label>
+          <input type="email" id="regEmail" placeholder="you@vitbhopal.ac.in" required style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-line); outline: none;" />
+        </div>
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Password *</label>
+          <input type="password" id="regPassword" placeholder="Create password" required style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-line); outline: none;" />
+        </div>
+        <div id="regErrorMsg" style="color: #dc2626; font-size: 13px; display: none;"></div>
+        <button type="submit" class="chat-send-btn" style="width: 100%; border-radius: 8px; margin-top: 6px;">Create Verified Account</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Main Container for All 4 Single Page Features -->
 <div class="main-app-container">
@@ -967,12 +1017,136 @@
       });
       if (res.ok) {
         msgInput.value = '';
-        loadSectionCommunityChat();
-      }
-    } catch(e) {
-      alert("Failed to post message.");
+  // User Auth State & Modal Handlers
+  let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+  function renderUserAuthState() {
+    const container = document.getElementById('userAuthContainer');
+    if (currentUser) {
+      container.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:13px; font-weight:800; color:var(--vit-blue); background:rgba(52,87,213,0.1); padding:6px 12px; border-radius:100px;">👤 ${currentUser.name}</span>
+          <button onclick="logoutUser()" style="border:none; background:none; color:var(--text-muted); font-size:12px; font-weight:700; cursor:pointer;">Log Out</button>
+        </div>
+      `;
+      // Pre-fill student name inputs
+      const secName = document.getElementById('secCommStudentName');
+      if (secName) secName.value = currentUser.name;
+      const commName = document.getElementById('commStudentName');
+      if (commName) commName.value = currentUser.name;
+      const lfOwner = document.getElementById('lfOwnerName');
+      if (lfOwner) lfOwner.value = currentUser.name;
+      const lfContact = document.getElementById('lfContact');
+      if (lfContact && currentUser.email) lfContact.value = currentUser.email;
+    } else {
+      container.innerHTML = `
+        <button class="tab-btn" onclick="openAuthModal('login')" style="background: var(--vit-orange-soft); color: var(--vit-orange); border: 1px solid #ffe3d1; font-weight: 800;">🔐 Sign In / Register</button>
+      `;
     }
   }
+
+  function openAuthModal(tab) {
+    const modal = document.getElementById('authModal');
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+    switchAuthTab(tab || 'login');
+  }
+
+  function closeAuthModal() {
+    const modal = document.getElementById('authModal');
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+  }
+
+  function switchAuthTab(tab) {
+    const loginForm = document.getElementById('authLoginForm');
+    const regForm = document.getElementById('authRegisterForm');
+    const loginBtn = document.getElementById('authTabLoginBtn');
+    const regBtn = document.getElementById('authTabRegBtn');
+
+    if (tab === 'login') {
+      loginForm.style.display = 'block';
+      regForm.style.display = 'none';
+      loginBtn.style.color = 'var(--vit-blue)';
+      loginBtn.style.borderBottom = '2px solid var(--vit-blue)';
+      regBtn.style.color = 'var(--text-muted)';
+      regBtn.style.borderBottom = 'none';
+    } else {
+      loginForm.style.display = 'none';
+      regForm.style.display = 'block';
+      regBtn.style.color = 'var(--vit-blue)';
+      regBtn.style.borderBottom = '2px solid var(--vit-blue)';
+      loginBtn.style.color = 'var(--text-muted)';
+      loginBtn.style.borderBottom = 'none';
+    }
+  }
+
+  async function handleAuthLoginSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errBox = document.getElementById('loginErrorMsg');
+    errBox.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        currentUser = data.user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        renderUserAuthState();
+        closeAuthModal();
+      } else {
+        errBox.textContent = data.message || 'Login failed.';
+        errBox.style.display = 'block';
+      }
+    } catch(err) {
+      errBox.textContent = 'Server error during login.';
+      errBox.style.display = 'block';
+    }
+  }
+
+  async function handleAuthRegisterSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const errBox = document.getElementById('regErrorMsg');
+    errBox.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        currentUser = data.user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        renderUserAuthState();
+        closeAuthModal();
+      } else {
+        errBox.textContent = data.message || 'Registration failed.';
+        errBox.style.display = 'block';
+      }
+    } catch(err) {
+      errBox.textContent = 'Server error during registration.';
+      errBox.style.display = 'block';
+    }
+  }
+
+  function logoutUser() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    renderUserAuthState();
+  }
+
+  renderUserAuthState();
 
   // Dark/Light Theme Switcher
   const themeToggleBtn = document.getElementById('themeToggleBtn');
