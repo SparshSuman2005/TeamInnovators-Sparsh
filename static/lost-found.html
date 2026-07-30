@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lost & Found - Campus Help</title>
+    <style>
+      :root {
+        --bg: #eef2f6;
+        --panel: #ffffff;
+        --panel-soft: #f8fafc;
+        --text: #172033;
+        --muted: #657083;
+        --line: #dbe3ee;
+        --primary: #3457d5;
+        --primary-dark: #2742aa;
+        --green: #138a5b;
+        --red: #c2414b;
+        --shadow: 0 18px 45px rgba(34, 45, 70, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family: Inter, "Segoe UI", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(52, 87, 213, 0.14), transparent 32rem),
+          linear-gradient(135deg, #eef2f6 0%, #f8fafc 52%, #eef8f3 100%);
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 28px;
+        background: rgba(255, 255, 255, 0.84);
+        border-bottom: 1px solid rgba(219, 227, 238, 0.9);
+        backdrop-filter: blur(14px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), var(--green));
+        border-radius: 8px;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 11px;
+        border-radius: 999px;
+      }
+
+      .nav a:hover,
+      .nav a.active {
+        color: var(--primary);
+        background: #e8edff;
+      }
+
+      main {
+        width: min(980px, calc(100% - 32px));
+        margin: 32px auto 60px;
+      }
+
+      .page-head,
+      .panel {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(219, 227, 238, 0.95);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .page-head {
+        padding: 28px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 34px;
+        letter-spacing: 0;
+      }
+
+      .page-head p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .tab {
+        padding: 10px 15px;
+        border-radius: 999px;
+        cursor: pointer;
+        background: var(--panel-soft);
+        border: 1px solid var(--line);
+        color: var(--muted);
+        font-weight: 800;
+        font-size: 14px;
+      }
+
+      .tab.active {
+        background: #e8edff;
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .panel-section {
+        display: none;
+      }
+
+      .panel-section.active {
+        display: block;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 13px 14px;
+        margin-bottom: 13px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        font: inherit;
+        outline: none;
+      }
+
+      input:focus,
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(52, 87, 213, 0.13);
+      }
+
+      textarea {
+        min-height: 104px;
+        resize: vertical;
+      }
+
+      button {
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: none;
+        background: var(--primary);
+        color: white;
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      button:hover {
+        background: var(--primary-dark);
+      }
+
+      .card {
+        background: var(--panel-soft);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+
+      .card h3 {
+        margin: 8px 0 4px;
+        font-size: 17px;
+      }
+
+      .card p {
+        margin: 4px 0;
+        color: var(--muted);
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-weight: 800;
+      }
+
+      .badge.lost {
+        background: #ffe8ea;
+        color: var(--red);
+      }
+
+      .badge.found {
+        background: #e4f7ef;
+        color: var(--green);
+      }
+
+      #status {
+        margin-top: 14px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      @media (max-width: 700px) {
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 13px 16px;
+        }
+
+        .nav {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">C</div>
+        <span>Campus Help</span>
+      </div>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/lost-found.html" class="active">Lost &amp; Found</a>
+        <a href="/cab.html">Campus Cab</a>
+        <a href="/chat.html">College Chat</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-head">
+        <h1>Lost &amp; Found</h1>
+        <p>Report an item, browse campus submissions, and check likely matches.</p>
+      </section>
+
+      <section class="panel">
+        <div class="tabs">
+          <div class="tab active" onclick="showTab('lost')">Report Lost</div>
+          <div class="tab" onclick="showTab('found')">Report Found</div>
+          <div class="tab" onclick="showTab('browse')">Browse All</div>
+        </div>
+
+        <div id="lost" class="panel-section active">
+          <input id="lost-title" placeholder="Item title, e.g. Black wallet" />
+          <textarea id="lost-desc" placeholder="Description, color, brand, where you lost it"></textarea>
+          <input id="lost-location" placeholder="Location (optional)" />
+          <input id="lost-contact" placeholder="Your contact (phone/email)" />
+          <button onclick="submitItem('lost')">Submit Lost Item</button>
+        </div>
+
+        <div id="found" class="panel-section">
+          <input id="found-title" placeholder="Item title, e.g. Wallet found" />
+          <textarea id="found-desc" placeholder="Description, color, brand, where you found it"></textarea>
+          <input id="found-location" placeholder="Location (optional)" />
+          <input id="found-contact" placeholder="Your contact (phone/email)" />
+          <button onclick="submitItem('found')">Submit Found Item</button>
+        </div>
+
+        <div id="browse" class="panel-section">
+          <button onclick="loadItems()">Refresh List</button>
+          <div id="items-list" style="margin-top: 16px"></div>
+        </div>
+
+        <div id="status"></div>
+      </section>
+    </main>
+
+    <script>
+      const API = window.location.origin;
+
+      function showTab(name) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".panel-section")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelector(`.tab[onclick="showTab('${name}')"]`)
+          .classList.add("active");
+        document.getElementById(name).classList.add("active");
+        if (name === "browse") loadItems();
+      }
+
+      async function submitItem(type) {
+        const title = document.getElementById(`${type}-title`).value;
+        const description = document.getElementById(`${type}-desc`).value;
+        const location = document.getElementById(`${type}-location`).value;
+        const contact = document.getElementById(`${type}-contact`).value;
+
+        if (!title || !description || !contact) {
+          setStatus("Fill title, description, and contact.", true);
+          return;
+        }
+
+        const res = await fetch(`${API}/lost-found/report-${type}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, description, location, contact }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setStatus(`Submitted! Item #${data.id}. Checking matches...`);
+          document.getElementById(`${type}-title`).value = "";
+          document.getElementById(`${type}-desc`).value = "";
+          document.getElementById(`${type}-location`).value = "";
+          document.getElementById(`${type}-contact`).value = "";
+          checkMatches(data.id);
+        } else {
+          setStatus("Something went wrong. Check server terminal.", true);
+        }
+      }
+
+      async function checkMatches(itemId) {
+        const res = await fetch(`${API}/lost-found/matches/${itemId}`);
+        const matches = await res.json();
+        if (matches.length > 0) {
+          setStatus(`${matches.length} possible match(es) found! Check Browse tab.`);
+        } else {
+          setStatus("Submitted. No matches yet. We'll keep checking.");
+        }
+      }
+
+      async function loadItems() {
+        const res = await fetch(`${API}/lost-found/items`);
+        const items = await res.json();
+        const container = document.getElementById("items-list");
+        container.innerHTML = "";
+
+        if (items.length === 0) {
+          container.innerHTML = '<p style="color:#657083;">No items yet.</p>';
+          return;
+        }
+
+        items.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = `
+            <span class="badge ${item.type}">${item.type.toUpperCase()}</span>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            <p>Location: ${item.location || "not specified"} | Contact: ${item.contact}</p>
+            <p>Status: ${item.status}</p>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      function setStatus(msg, isError = false) {
+        const el = document.getElementById("status");
+        el.textContent = msg;
+        el.style.color = isError ? "#c2414b" : "#138a5b";
+      }
+    </script>
+  </body>
+</html>
