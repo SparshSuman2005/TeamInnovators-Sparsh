@@ -975,6 +975,9 @@
     if (tabId === 'community') {
       loadSectionCommunityChat();
     }
+    if (tabId === 'lostfound') {
+      loadLfItems();
+    }
   }
 
   async function loadSectionCommunityChat() {
@@ -1349,6 +1352,7 @@
 
   function renderLfItems() {
     const grid = document.getElementById('lfItemsGrid');
+    if (!grid) return;
     const filtered = allLfItems.filter(item => {
       if (lfFilter === 'all') return true;
       return item.type === lfFilter;
@@ -1365,18 +1369,21 @@
       card.className = 'item-card';
       const tagClass = item.status === 'resolved' ? 'item-tag-resolved' : (item.type === 'lost' ? 'item-tag-lost' : 'item-tag-found');
       
-      const waMsg = encodeURIComponent(`Hi ${item.contact_name}, regarding your ${item.type} item "${item.title}" on Campus Helpdesk...`);
+      const contactStr = item.contact || 'Student Desk';
+      const digitsOnly = contactStr.replace(/[^0-9]/g, '');
+      const waMsg = encodeURIComponent(`Hi, regarding your ${item.type} item "${item.title}" on Campus Helpdesk...`);
+      const connectLink = digitsOnly ? `https://wa.me/${digitsOnly}?text=${waMsg}` : `mailto:${contactStr}`;
 
       card.innerHTML = `
         <span class="${tagClass}">${item.type.toUpperCase()} • ${item.status.toUpperCase()}</span>
-        <h4 style="font-family:'Outfit',sans-serif; font-size:16px;">${item.title}</h4>
+        <h4 style="font-family:'Outfit',sans-serif; font-size:16px; margin-top:4px;">${item.title}</h4>
         <p style="font-size:13px; color:var(--text-muted);">${item.description}</p>
-        <div style="font-size:12px; color:var(--text-muted); margin-top:auto;">
-          📍 ${item.location || 'Campus'} | 👤 ${item.contact_name}
+        <div style="font-size:12px; color:var(--text-muted); margin-top:auto; padding-top:4px;">
+          📍 ${item.location || 'Campus'} | 👤 ${contactStr}
         </div>
         <div style="display:flex; gap:8px; margin-top:8px;">
-          <a href="https://wa.me/${item.contact_info.replace(/[^0-9]/g, '')}?text=${waMsg}" target="_blank" style="flex:1; text-align:center; background:#25d366; color:#fff; padding:6px; border-radius:6px; font-weight:700; font-size:12px; text-decoration:none;">Connect</a>
-          ${item.status === 'open' ? `<button onclick="resolveItem(${item.id})" style="border:1px solid var(--border-line); background:var(--bg-panel); padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;">Resolve</button>` : ''}
+          <a href="${connectLink}" target="_blank" style="flex:1; text-align:center; background:#25d366; color:#fff; padding:6px; border-radius:6px; font-weight:700; font-size:12px; text-decoration:none;">Connect 💬</a>
+          ${item.status === 'open' ? `<button onclick="resolveItem(${item.id})" style="border:1px solid var(--border-line); background:var(--bg-panel); padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;">Resolve ✓</button>` : ''}
         </div>
       `;
       grid.appendChild(card);
