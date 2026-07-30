@@ -1,0 +1,34 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Sparsh Kumar Suman",
+      "email": "sparsh.24bai10205@vitbhopal.ac.in",
+      "password_hash": "scrypt:32768:8:1$niCwjbIXjiXhd5cb$dbbb4a8072154be5951eb109326ac16f112ed9a9a4c19cded10c1af7b75253e98c704123438f55645ba06406ef04d0a4906d5feeb31fbddc3fc2aa20c23853a2",
+      "role": "admin",
+      "is_approved": true,
+      "created_at": "2026-07-30T11:05:43.527399"
+    },
+    {
+      "id": 2,
+      "name": "Paras MIttal",
+      "email": "paras.24bsa10213@vitbhopal.ac.in",
+      "password_hash": "scrypt:32768:8:1$g7lR910MchAkBuYM$4b70a89b9c559a6c35e88ec8b1aa94808161fcc6eb2d8f9b6505a3fdd7a880913c745a5138c26969496064a1bc1b4b31cd9707a59ddf97aa7dc8e432ebc676e3",
+      "role": "student",
+      "is_approved": true,
+      "created_at": "2026-07-30T11:10:35.668587"
+    }
+  ],
+  "messages": [
+    {
+      "user_name": "Paras MIttal",
+      "text": "hello",
+      "created_at": "11:21 AM"
+    },
+    {
+      "user_name": "Sparsh Kumar Suman",
+      "text": "hi kya haal",
+      "created_at": "11:21 AM"
+    }
+  ]
+}

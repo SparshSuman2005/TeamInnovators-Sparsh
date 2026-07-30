@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Register - College Chat{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Create Account</h2>
+    <form method="POST" action="{{ url_for('register_page') }}">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="you@college.edu" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Register</button>
+    </form>
+    <div class="bottom-link">
+        Already have an account? <a href="{{ url_for('login_page') }}">Login here</a>
+    </div>
+</div>
+{% endblock %}
