@@ -1386,14 +1386,16 @@
   async function handleLfSubmit(e) {
     e.preventDefault();
     const itemType = document.getElementById('lfType').value;
+    const ownerName = document.getElementById('lfOwnerName').value.trim();
+    const contactInfo = document.getElementById('lfContact').value.trim();
+    const contactCombined = ownerName ? `${ownerName} (${contactInfo})` : contactInfo;
+
     const payload = {
-      title: document.getElementById('lfTitle').value,
+      title: document.getElementById('lfTitle').value.trim(),
       category: document.getElementById('lfCategory').value,
-      location: document.getElementById('lfLocation').value,
-      description: document.getElementById('lfDescription').value,
-      contact_name: document.getElementById('lfOwnerName').value,
-      contact_info: document.getElementById('lfContact').value,
-      date: new Date().toISOString().split('T')[0]
+      location: document.getElementById('lfLocation').value.trim(),
+      description: document.getElementById('lfDescription').value.trim(),
+      contact: contactCombined
     };
 
     const endpoint = itemType === 'found' ? '/lost-found/report-found' : '/lost-found/report-lost';
@@ -1417,22 +1419,25 @@
                 <h4>🎯 AI TF-IDF Match Suggestions Found (${matches.length}):</h4>
                 ${matches.map(m => `
                   <div style="font-size:13px; margin-top:4px;">
-                    • <strong>${m.matched_item.title}</strong> (${m.matched_item.type}) - Similarity: ${(m.score*100).toFixed(0)}%
-                    <br><span style="color:var(--text-muted);">${m.matched_item.description}</span>
+                    • <strong>${m.item.title}</strong> (${m.item.type.toUpperCase()}) - Similarity: ${(m.score*100).toFixed(0)}%
+                    <br><span style="color:var(--text-muted);">${m.item.description} (Contact: ${m.item.contact})</span>
                   </div>
                 `).join('')}
               </div>
             `;
           } else {
-            matchBox.innerHTML = '<div style="margin-top:12px; color:var(--vit-green); font-size:13px; font-weight:700;">✓ Item submitted successfully! No immediate matches found.</div>';
+            matchBox.innerHTML = '<div style="margin-top:12px; color:var(--vit-green); font-size:13px; font-weight:700;">✓ Item registered successfully! No immediate matches found yet.</div>';
           }
         }
 
         document.getElementById('lfForm').reset();
         loadLfItems();
+      } else {
+        const err = await res.json();
+        alert("Submission failed: " + (err.detail ? JSON.stringify(err.detail) : "Invalid input"));
       }
     } catch (e) {
-      alert("Submission error. Please check server.");
+      alert("Submission error. Please check server connection.");
     }
   }
 

@@ -8,6 +8,7 @@ class ItemCreate(BaseModel):
     description: str
     location: Optional[str] = None
     contact: str
+    category: Optional[str] = None
 
 
 class ItemOut(BaseModel):
