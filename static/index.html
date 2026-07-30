@@ -36,11 +36,14 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
+  html, body {
     background: var(--bg-main);
     color: var(--text-main);
     font-family: 'Inter', system-ui, sans-serif;
-    min-height: 100vh;
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     display: flex;
     flex-direction: column;
   }

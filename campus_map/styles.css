@@ -38,8 +38,6 @@ body {
   background-color: var(--bg-main);
   color: var(--text-main);
   font-family: 'Inter', -apple-system, sans-serif;
-  height: 100vh;
-  overflow: hidden;
 }
 
 h1, h2, h3, .brand-title, .section-title {
