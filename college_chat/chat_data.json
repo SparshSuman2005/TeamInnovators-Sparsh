@@ -17,6 +17,15 @@
       "role": "student",
       "is_approved": true,
       "created_at": "2026-07-30T11:10:35.668587"
+    },
+    {
+      "id": 3,
+      "name": "Test Student",
+      "email": "student@vitbhopal.ac.in",
+      "password_hash": "scrypt:32768:8:1$K8NtiTg3YkBiiDLx$6d5f3348c0349e5b0be92d8056e2a7f111029193349c9d612a7932c99bca041eb0e61ff2166764dcd90cd2ba512b5ce6f12b73a9656aea0d43110f0a4d08b68e",
+      "role": "student",
+      "is_approved": true,
+      "created_at": "2026-07-31T02:55:12.793212"
     }
   ],
   "messages": [
