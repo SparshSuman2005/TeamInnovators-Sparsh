@@ -1,3 +1,4 @@
+streamlit
 fastapi
 uvicorn
 sqlalchemy
@@ -6,3 +7,4 @@ pydantic
 flask
 flask-socketio
 werkzeug
+python-dotenv
