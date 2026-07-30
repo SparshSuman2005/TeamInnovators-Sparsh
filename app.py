@@ -83,9 +83,27 @@ with tab_map:
     # Read map index HTML or embed standalone SVG map
     map_html_path = os.path.join("campus_map", "index.html")
     if os.path.exists(map_html_path):
-        with open(map_html_path, "r", encoding="utf-8") as f:
-            map_html = f.read()
-        components.html(map_html, height=720, scrolling=True)
+        try:
+            with open(map_html_path, "r", encoding="utf-8") as f:
+                map_html = f.read()
+            
+            b_path = os.path.join("campus_map", "buildings-data.js")
+            a_path = os.path.join("campus_map", "app.js")
+            b_js = ""
+            a_js = ""
+            if os.path.exists(b_path):
+                with open(b_path, "r", encoding="utf-8") as bf:
+                    b_js = bf.read()
+            if os.path.exists(a_path):
+                with open(a_path, "r", encoding="utf-8") as af:
+                    a_js = af.read()
+
+            map_html = map_html.replace('<script src="buildings-data.js"></script>', f'<script>{b_js}</script>')
+            map_html = map_html.replace('<script src="app.js"></script>', f'<script>{a_js}</script>')
+
+            components.html(map_html, height=720, scrolling=True)
+        except Exception as e:
+            st.error(f"Map renderer notification: {e}")
     else:
         st.info("Interactive Map Canvas active in primary web interface.")
 
@@ -176,14 +194,20 @@ with tab_community:
             st.error(f"Error saving message: {e}")
 
     chat_data = load_community_chat()
+    if "messages" not in chat_data or not isinstance(chat_data["messages"], list):
+        chat_data["messages"] = []
 
     # Community Chat Feed
     st.write("#### 💬 Student Chat Feed")
     chat_container = st.container(height=380)
     with chat_container:
-        if chat_data["messages"]:
-            for m in chat_data["messages"]:
-                st.markdown(f"**👤 {m['user_name']}** <span style='font-size:11px; color:#657083;'>[{m.get('created_at', 'Now')}]</span><br>{m['text']}", unsafe_allow_html=True)
+        messages = chat_data.get("messages", [])
+        if messages:
+            for m in messages:
+                user = m.get('user_name', 'Student')
+                created = m.get('created_at', 'Now')
+                text = m.get('text', '')
+                st.markdown(f"**👤 {user}** <span style='font-size:11px; color:#657083;'>[{created}]</span><br>{text}", unsafe_allow_html=True)
                 st.divider()
         else:
             st.info("No messages in community chat yet. Start the conversation below!")
