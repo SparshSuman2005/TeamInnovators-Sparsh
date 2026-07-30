@@ -520,7 +520,8 @@
 
   <nav class="nav-tabs">
     <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">🗺️ Campus Map</button>
-    <button class="tab-btn" data-tab="chat" onclick="switchTab('chat')">🤖 Chatbot</button>
+    <button class="tab-btn" data-tab="chat" onclick="switchTab('chat')">🤖 AI Assistant</button>
+    <button class="tab-btn" data-tab="community" onclick="switchTab('community')">💬 College Chat</button>
     <button class="tab-btn" data-tab="cabs" onclick="switchTab('cabs')">🚗 Car Service</button>
     <button class="tab-btn" data-tab="lostfound" onclick="switchTab('lostfound')">🔍 Lost & Found</button>
   </nav>
@@ -756,6 +757,30 @@
     </div>
   </section>
 
+  <!-- ================= SECTION 2B: COLLEGE COMMUNITY CHAT ================= -->
+  <section id="section-community" class="app-section">
+    <div class="chat-section-wrap">
+      <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-line); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800;">💬 Live Student College Chat</h2>
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 2px;">Real-time student discussions, cab sharing, and campus announcements</p>
+        </div>
+        <span class="status-pill-head">● Live Feed</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; height: 520px;">
+        <div class="chat-messages-container" id="sectionCommunityMessages" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
+          <!-- Loaded dynamically from /api/community-chat -->
+        </div>
+        <form class="chat-input-bar" id="sectionCommunityForm" onsubmit="handleSectionCommunitySubmit(event)" style="display: flex; gap: 8px;">
+          <input type="text" id="secCommStudentName" placeholder="Your Name" value="Student" style="width: 140px; shrink: 0; padding: 12px 14px; border-radius: 100px; border: 1px solid var(--border-line); outline: none; font-size: 14px;" required />
+          <input type="text" id="secCommMsgInput" placeholder="Type a message to the student community..." style="flex: 1; padding: 12px 18px; border-radius: 100px; border: 1px solid var(--border-line); outline: none; font-size: 14.5px;" required />
+          <button type="submit" class="chat-send-btn">Post Message 💬</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= SECTION 3: CAR SERVICE & CABS ================= -->
   <section id="section-cabs" class="app-section">
     <div class="cab-section-wrap">
@@ -890,6 +915,59 @@
     document.querySelectorAll('.app-section').forEach(sec => {
       sec.classList.toggle('active', sec.id === 'section-' + tabId);
     });
+    if (tabId === 'community') {
+      loadSectionCommunityChat();
+    }
+  }
+
+  async function loadSectionCommunityChat() {
+    const box = document.getElementById('sectionCommunityMessages');
+    if (!box) return;
+    try {
+      const res = await fetch('/api/community-chat');
+      if (res.ok) {
+        const data = await res.json();
+        box.innerHTML = '';
+        if (data.messages && data.messages.length > 0) {
+          data.messages.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'chat-bubble ai';
+            div.style.alignSelf = 'flex-start';
+            div.style.maxWidth = '85%';
+            div.innerHTML = `<strong style="color:var(--vit-blue);">👤 ${m.user_name}</strong> <span style="font-size:11px; color:var(--text-muted);">[${m.created_at || 'Now'}]</span><br>${m.text}`;
+            box.appendChild(div);
+          });
+        } else {
+          box.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">No community chat messages yet. Start the conversation below!</div>';
+        }
+        box.scrollTop = box.scrollHeight;
+      }
+    } catch(e) {
+      console.error("Failed to load section community chat", e);
+    }
+  }
+
+  async function handleSectionCommunitySubmit(e) {
+    e.preventDefault();
+    const nameInput = document.getElementById('secCommStudentName');
+    const msgInput = document.getElementById('secCommMsgInput');
+    const name = nameInput.value.trim() || 'Student';
+    const text = msgInput.value.trim();
+    if (!text) return;
+
+    try {
+      const res = await fetch('/api/community-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_name: name, text: text })
+      });
+      if (res.ok) {
+        msgInput.value = '';
+        loadSectionCommunityChat();
+      }
+    } catch(e) {
+      alert("Failed to post message.");
+    }
   }
 
   // Dark/Light Theme Switcher
