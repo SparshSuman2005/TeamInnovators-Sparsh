@@ -203,4 +203,4 @@ def handle_send_message(data_from_client):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, host='127.0.0.1', port=5000, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=False, host='127.0.0.1', port=5000)

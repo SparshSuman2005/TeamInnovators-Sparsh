@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Campus Chatbot - Campus Help</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #eef2f6;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #657083;
+      --line: #dbe3ee;
+      --primary: #3457d5;
+      --primary-dark: #2742aa;
+      --green: #138a5b;
+      --orange: #f07822;
+      --shadow: 0 18px 45px rgba(34, 45, 70, 0.12);
+      --bot-bg: #f0f4ff;
+      --user-bg: linear-gradient(135deg, #3457d5, #5b7cfa);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(52, 87, 213, 0.14), transparent 32rem),
+        linear-gradient(135deg, #eef2f6 0%, #f8fafc 52%, #eef8f3 100%);
+    }
+
+    /* Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 28px;
+      background: rgba(255, 255, 255, 0.84);
+      border-bottom: 1px solid rgba(219, 227, 238, 0.9);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--green));
+      border-radius: 8px;
+      box-shadow: 0 10px 22px rgba(52, 87, 213, 0.25);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 8px 11px;
+      border-radius: 999px;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      color: var(--primary);
+      background: #e8edff;
+    }
+
+    /* Chat Container */
+    .chat-container {
+      width: min(820px, calc(100% - 32px));
+      margin: 28px auto 40px;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 120px);
+      min-height: 500px;
+    }
+
+    /* Chat Header */
+    .chat-header {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(219, 227, 238, 0.95);
+      border-radius: 12px 12px 0 0;
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .bot-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #3457d5, #138a5b);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      box-shadow: 0 6px 18px rgba(52, 87, 213, 0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-3px);
+      }
+    }
+
+    .bot-info h2 {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .bot-info p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .bot-info .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      margin-right: 6px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.85);
+      }
+    }
+
+    /* Messages Area */
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.75);
+      border-left: 1px solid rgba(219, 227, 238, 0.95);
+      border-right: 1px solid rgba(219, 227, 238, 0.95);
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .messages-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .messages-area::-webkit-scrollbar-thumb {
+      background: #d0d7e3;
+      border-radius: 6px;
+    }
+
+    /* Message Bubbles */
+    .message {
+      display: flex;
+      gap: 10px;
+      max-width: 85%;
+      animation: msgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes msgIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .message.bot .msg-avatar {
+      background: linear-gradient(135deg, #3457d5, #138a5b);
+    }
+
+    .message.user .msg-avatar {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    }
+
+    .msg-content {
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      word-wrap: break-word;
+    }
+
+    .message.bot .msg-content {
+      background: var(--bot-bg);
+      border: 1px solid #dde4f7;
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .message.user .msg-content {
+      background: var(--user-bg);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 14px rgba(52, 87, 213, 0.3);
+    }
+
+    .msg-time {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+
+    .message.user .msg-time {
+      text-align: right;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      padding: 10px 16px;
+      background: var(--bot-bg);
+      border: 1px solid #dde4f7;
+      border-radius: 14px;
+      gap: 5px;
+    }
+
+    .typing-indicator.active {
+      display: flex;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #94a3b8;
+      animation: typingBounce 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typingBounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+
+      30% {
+        transform: translateY(-6px);
+        opacity: 1;
+      }
+    }
+
+    /* Quick Replies */
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px 0;
+    }
+
+    .quick-chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .quick-chip:hover {
+      background: #e8edff;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    /* Input Area */
+    .input-area {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(219, 227, 238, 0.95);
+      border-radius: 0 0 12px 12px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 -4px 20px rgba(34, 45, 70, 0.06);
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 13px 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+      color: var(--text);
+      background: #f8fafc;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-area input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(52, 87, 213, 0.12);
+      background: #fff;
+    }
+
+    .send-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #3457d5, #5b7cfa);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 14px rgba(52, 87, 213, 0.35);
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 6px 20px rgba(52, 87, 213, 0.45);
+    }
+
+    .send-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Department Badge in bot messages */
+    .dept-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .dept-admissions {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .dept-hostel {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .dept-finance {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .dept-exams {
+      background: #fce7f3;
+      color: #9d174d;
+    }
+
+    .dept-academics {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .dept-sports {
+      background: #f3e8ff;
+      color: #6b21a8;
+    }
+
+    .dept-food {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .dept-transport {
+      background: #ccfbf1;
+      color: #115e59;
+    }
+
+    .dept-general {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px 16px;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .chat-container {
+        margin: 16px auto 20px;
+        height: calc(100vh - 100px);
+      }
+
+      .chat-header {
+        padding: 14px 16px;
+      }
+
+      .messages-area {
+        padding: 14px 16px;
+      }
+
+      .input-area {
+        padding: 12px 14px;
+      }
+
+      .message {
+        max-width: 92%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <span>Campus Help</span>
+    </div>
+    <nav class="nav">
+      <a href="/">Home</a>
+      <a href="/lost-found.html">Lost &amp; Found</a>
+      <a href="/cab.html">Campus Cab</a>
+      <a href="/chat.html">College Chat</a>
+      <a href="/map.html">Campus Map</a>
+      <a href="/chatbot.html" class="active">AI Chatbot</a>
+    </nav>
+  </header>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="bot-avatar">🤖</div>
+      <div class="bot-info">
+        <h2>Campus AI Assistant</h2>
+        <p><span class="status-dot"></span>Online — Ask anything about VIT Bhopal</p>
+      </div>
+    </div>
+
+    <div class="messages-area" id="messagesArea">
+      <!-- Welcome message rendered by JS -->
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Ask about admissions, hostel, exams, food, transport..."
+        autocomplete="off" />
+      <button class="send-btn" id="sendBtn" title="Send">➤</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // ============================================================
+      // VIT BHOPAL CAMPUS KNOWLEDGE BASE
+      // ============================================================
+      const KB = [
+        // --- ADMISSIONS ---
+        {
+          keywords: ["admission", "admit", "apply", "application", "entrance", "eligibility", "criteria", "cutoff", "cut-off", "seats", "intake"],
+          department: "Admissions",
+          deptClass: "dept-admissions",
+          answer: `<strong>Admissions at VIT Bhopal:</strong><br><br>
+• <strong>B.Tech Admissions:</strong> Through VITEEE (VIT Engineering Entrance Exam) conducted annually in April-May. Apply online at vit.ac.in.<br>
+• <strong>Eligibility:</strong> 10+2 with Physics, Chemistry & Maths with minimum 60% aggregate.<br>
+• <strong>Counselling:</strong> Based on VITEEE rank — choose branch and campus preference during online counselling rounds.<br>
+• <strong>Documents needed:</strong> 10th & 12th marksheets, VITEEE scorecard, Aadhar, photos, category certificate (if applicable).<br>
+• <strong>M.Tech / PhD:</strong> Apply separately through GATE score or VIT's own entrance.<br><br>
+📞 Contact Admissions Office: Ground Floor, AB1 Block.`
+        },
+        {
+          keywords: ["fee", "fees", "tuition", "payment", "scholarship", "refund", "installment", "emi", "financial", "concession"],
+          department: "Finance",
+          deptClass: "dept-finance",
+          answer: `<strong>Fee Structure & Finance:</strong><br><br>
+• <strong>B.Tech Annual Fee:</strong> Approximately ₹2,00,000 - ₹3,00,000 per year (varies by branch & category).<br>
+• <strong>Hostel Fee:</strong> ₹1,00,000 - ₹1,40,000 per year (AC/Non-AC room options).<br>
+• <strong>Mess Fee:</strong> ₹60,000 - ₹75,000 per year (included in hostel package).<br>
+• <strong>Payment Mode:</strong> Online via student portal → Finance Section → Pay Fees. EMI options available through partner banks.<br>
+• <strong>Scholarships:</strong> Merit-based scholarships (up to 100% tuition waiver) based on VITEEE rank. Special scholarships for sports and cultural achievers.<br>
+• <strong>Refund Policy:</strong> As per UGC guidelines. Apply at Finance Office, AB1 Ground Floor.<br><br>
+📞 Finance Office: AB1 Block, Ground Floor. Timings: 9 AM - 5 PM (Mon-Fri).`
+        },
+        // --- HOSTEL ---
+        {
+          keywords: ["hostel", "room", "accommodation", "mess", "laundry", "wifi", "wi-fi", "roommate", "stay", "residence", "warden", "night canteen"],
+          department: "Hostel",
+          deptClass: "dept-hostel",
+          answer: `<strong>Hostel Life at VIT Bhopal:</strong><br><br>
+• <strong>Boys Hostels:</strong> 6 blocks — Mayuri, Kshipra, Narmada, Tapti, Kaveri & Godavari. AC & Non-AC rooms available (2/3/4 sharing).<br>
+• <strong>Girls Hostels:</strong> Sarojini & Kalpana Blocks with 24/7 security, CCTV, and biometric access.<br>
+• <strong>Mess:</strong> Breakfast (7:30-9:30 AM), Lunch (12-2 PM), Snacks (4:30-5:30 PM), Dinner (7:30-9:30 PM). Veg & Non-Veg options.<br>
+• <strong>Night Canteen:</strong> Open till 11:30 PM for snacks, Maggi, tea & coffee.<br>
+• <strong>Amenities:</strong> Wi-Fi (150 Mbps), gym, table tennis, reading room, laundry machines on each floor.<br>
+• <strong>In-time Rules:</strong> Weekdays — 9:30 PM, Weekends — 10 PM. Late entry needs warden approval.<br>
+• <strong>Room Allocation:</strong> Done through hostel portal before semester starts.<br><br>
+📞 Boys Hostel Warden: Check notice board. Girls Hostel Warden: Check notice board.`
+        },
+        {
+          keywords: ["leave", "outing", "gate pass", "home", "outpass", "permission", "absent", "vacation"],
+          department: "Student Affairs",
+          deptClass: "dept-general",
+          answer: `<strong>Leave & Outpass Policy:</strong><br><br>
+• <strong>Day Outing:</strong> Apply via student portal → Hostel Section → Day Pass. Approved by warden. Return by 7 PM.<br>
+• <strong>Home Visit Leave:</strong> Apply minimum 2 days before. Requires parent SMS confirmation to warden's number.<br>
+• <strong>Emergency Leave:</strong> Contact warden directly. Parent/guardian phone verification required.<br>
+• <strong>Gate Pass:</strong> Available from hostel reception after online approval shows in the system.<br>
+• <strong>Leave during Exams:</strong> Strictly not permitted without medical emergency certificate.<br><br>
+📞 Student Affairs Office: AB1, 1st Floor.`
+        },
+        // --- ACADEMICS ---
+        {
+          keywords: ["class", "timetable", "schedule", "faculty", "professor", "course", "subject", "credit", "cgpa", "gpa", "attendance", "syllabus", "curriculum", "semester", "branch", "department"],
+          department: "Academics",
+          deptClass: "dept-academics",
+          answer: `<strong>Academic Information:</strong><br><br>
+• <strong>Class Timings:</strong> Morning: 8:30 AM - 12:30 PM | Afternoon: 1:30 PM - 5:30 PM. Each slot is 50 mins.<br>
+• <strong>Attendance:</strong> Minimum 75% attendance mandatory. Below 75% → not eligible for end-sem exam. Track on VTOP portal.<br>
+• <strong>CGPA System:</strong> 10-point scale. S=10, A=9, B=8, C=7, D=6, E=5, F=0 (Fail).<br>
+• <strong>Course Registration:</strong> Done on VTOP before each semester. Faculty Advisor approval required.<br>
+• <strong>Timetable:</strong> Published on VTOP 1 week before semester starts. Also displayed at department notice boards.<br>
+• <strong>Add/Drop Course:</strong> Within first 2 weeks of semester via VTOP with FA approval.<br><br>
+📞 Academic Office: AB1, 2nd Floor. VTOP: vtopbhopal.vit.ac.in`
+        },
+        // --- EXAMS ---
+        {
+          keywords: ["exam", "examination", "cat", "fat", "quiz", "test", "result", "grade", "revaluation", "supplementary", "backlog", "arrear", "digital assignment", "da"],
+          department: "Examinations",
+          deptClass: "dept-exams",
+          answer: `<strong>Examination Details:</strong><br><br>
+• <strong>CAT 1 & CAT 2:</strong> Continuous Assessment Tests held in Week 7 and Week 13 respectively. 50 marks each (scaled).<br>
+• <strong>FAT (Final Assessment Test):</strong> End-semester exam in Week 17-18. 100 marks (3 hours).<br>
+• <strong>Digital Assignments:</strong> 3 DAs per subject per semester. Submitted on VTOP before deadline.<br>
+• <strong>Quizzes:</strong> Surprise/announced quizzes at faculty discretion. Usually 10-20 marks.<br>
+• <strong>Results:</strong> Published on VTOP within 2-3 weeks after FAT. Grade card downloadable.<br>
+• <strong>Revaluation:</strong> Apply within 1 week of result publication. Fee: ₹500 per subject. Apply on VTOP.<br>
+• <strong>Supplementary Exam:</strong> For failed subjects — conducted before next semester starts.<br><br>
+📞 Examination Cell: AB1, Ground Floor. Timings: 9 AM - 4 PM (Mon-Sat).`
+        },
+        // --- FOOD ---
+        {
+          keywords: ["food", "canteen", "mess", "mayuri", "bistro", "dakshin", "restaurant", "eat", "lunch", "dinner", "breakfast", "snack", "coffee", "tea", "hunger", "hungry"],
+          department: "Food & Dining",
+          deptClass: "dept-food",
+          answer: `<strong>Food Options on Campus:</strong><br><br>
+• <strong>Mayuri Canteen (AB1 Side):</strong> Daily thalis ₹60-80, parathas, samosas, tea & coffee. (8 AM - 8:30 PM)<br>
+• <strong>Mayuri (AB2 Side):</strong> Quick bites, kathi rolls, juices, sandwiches. (9 AM - 7:30 PM)<br>
+• <strong>UB / Under the Tree:</strong> Famous student hangout! Special chai ₹10, Cheese Maggi ₹40, cold coffee. (8:30 AM - 9 PM)<br>
+• <strong>AB Dakshin:</strong> South Indian — Masala Dosa ₹50, Idli Sambhar ₹30, Filter Coffee ₹20. (8 AM - 8 PM)<br>
+• <strong>The Bistro:</strong> Pizza ₹120+, pasta, burgers, milkshakes, waffles. (11 AM - 10 PM)<br>
+• <strong>Central Food Court:</strong> Multi-cuisine container kiosks — momos, Chinese, ice cream, kathi rolls. (7 AM - 11:30 PM)<br>
+• <strong>Hostel Mess:</strong> Included in hostel fee. Veg & Non-Veg counters. 4 meals daily.<br>
+• <strong>Night Canteen:</strong> Maggi, sandwiches, tea. Open till 11:30 PM at hostel blocks.`
+        },
+        // --- TRANSPORT ---
+        {
+          keywords: ["cab", "auto", "transport", "bus", "travel", "airport", "station", "bhopal", "indore", "ashta", "taxi", "uber", "ola", "vehicle"],
+          department: "Transport",
+          deptClass: "dept-transport",
+          answer: `<strong>Transport & Cab Services:</strong><br><br>
+• <strong>Campus Cab Desk:</strong> 24-hour booking service via WhatsApp: +91 96307 41753.<br>
+• <strong>Vehicles Available:</strong> Ertiga (₹2800/day), Punch (₹3000), Creta Diesel (₹4200), Exter CNG (₹3200), and more.<br>
+• <strong>Common Routes:</strong><br>
+  — Ashta Bus Stand: ~25 km, ₹150-600<br>
+  — Bhopal Railway Station: ~65 km, ₹1200-1800<br>
+  — Raja Bhoj Airport: ~70 km, ₹1500-2000<br>
+  — Indore: ~120 km, ₹1800-2500<br>
+• <strong>Shared Autos:</strong> Available at Main Gate. Ashta per-seat: ₹30-50.<br>
+• <strong>Ola/Uber:</strong> Limited availability near campus. Better to book campus cabs.<br><br>
+📞 Campus Cab Desk WhatsApp: +91 96307 41753.<br>
+🔗 See all vehicles: <a href="/cab.html" style="color: var(--primary);">Campus Cab Page</a>`
+        },
+        // --- SPORTS ---
+        {
+          keywords: ["sports", "gym", "football", "cricket", "basketball", "badminton", "volleyball", "ground", "fitness", "swimming", "athletics", "yoga"],
+          department: "Sports",
+          deptClass: "dept-sports",
+          answer: `<strong>Sports & Fitness Facilities:</strong><br><br>
+• <strong>Sports Complex:</strong> Open 6 AM - 9 PM daily.<br>
+• <strong>Football Field:</strong> Full-size pitch with floodlights for evening matches.<br>
+• <strong>Basketball Court:</strong> 2 courts available. Booking via Sports Office.<br>
+• <strong>Volleyball:</strong> Sand & hard court available near hostels.<br>
+• <strong>Table Tennis:</strong> Available in every hostel block common room.<br>
+• <strong>Gym:</strong> Located in hostel complex. Free for all students. Timings: 6 AM - 8 PM.<br>
+• <strong>Cricket:</strong> Practice nets and ground available. Contact Sports Secretary for team trials.<br>
+• <strong>Yoga Room:</strong> Morning sessions 6:30 AM - 7:30 AM (Mon/Wed/Fri).<br>
+• <strong>Inter-VIT Tournaments:</strong> Annual sports fest with all VIT campuses.<br><br>
+📞 Sports Office: Near Sports Complex. Contact Sports Secretary.`
+        },
+        // --- CLUBS & FESTS ---
+        {
+          keywords: ["club", "fest", "event", "hackathon", "cultural", "technical", "chapter", "society", "committee", "council", "gravitas", "riviera"],
+          department: "Student Life",
+          deptClass: "dept-general",
+          answer: `<strong>Clubs, Chapters & Fests:</strong><br><br>
+• <strong>Technical Clubs:</strong> IEEE, ACM, GDSC (Google Developer), Microsoft Student Chapter, Robotics Club, AI Club, Cyber Security Club.<br>
+• <strong>Cultural Clubs:</strong> Dance (Nrityam), Music (Swara), Drama (Natya), Photography (Click), Art (Kala).<br>
+• <strong>Student Chapters:</strong> SAE, ASME, CSI, IET — Regular workshops, guest lectures & competitions.<br>
+• <strong>Major Fests:</strong><br>
+  — <strong>Gravitas:</strong> Annual tech fest (Oct/Nov) — coding contests, hackathons, robotics, guest speakers.<br>
+  — <strong>Riviera:</strong> Annual cultural fest (Feb/Mar) — concerts, dance battles, fashion show, comedy night.<br>
+• <strong>How to Join:</strong> Recruitment drives happen in August-September. Check notice boards & club Instagram pages.<br><br>
+🔗 Follow @vitbhopal on Instagram for fest updates.`
+        },
+        // --- MAP & NAVIGATION ---
+        {
+          keywords: ["map", "location", "where", "navigate", "direction", "building", "block", "ab1", "ab2", "library", "find", "campus map"],
+          department: "Campus Navigation",
+          deptClass: "dept-general",
+          answer: `<strong>Campus Navigation:</strong><br><br>
+Use our <a href="/map.html" style="color: var(--primary); font-weight: 700;">Interactive Campus Map</a> to find any building, food stall, hostel, or facility!<br><br>
+<strong>Key Locations:</strong><br>
+• <strong>AB1 (Academic Block 1):</strong> Main academic building — Auditorium, CS Labs, Exam Cell, Deans' offices.<br>
+• <strong>AB2 (Academic Block 2):</strong> ECE, Mechanical labs, research centers.<br>
+• <strong>Central Library:</strong> Between AB1 & AB2 — books, e-resources, study zones. Open 8 AM - 10 PM.<br>
+• <strong>Architecture Block:</strong> Design studios, CAD labs, exhibition space.<br>
+• <strong>Food Court:</strong> Central junction with multiple food stalls.<br>
+• <strong>Health Centre:</strong> 24/7 medical care near pharmacy. Behind food court area.<br>
+• <strong>Main Gate:</strong> Primary entrance with security checkpoint & auto/cab stand.<br><br>
+📍 <a href="/map.html" style="color: var(--primary);">Open Interactive Map →</a>`
+        },
+        // --- LOST & FOUND ---
+        {
+          keywords: ["lost", "found", "missing", "wallet", "phone", "id card", "belongings", "theft", "stolen"],
+          department: "Lost & Found",
+          deptClass: "dept-general",
+          answer: `<strong>Lost & Found Service:</strong><br><br>
+• <strong>Report Lost Items:</strong> Use our <a href="/lost-found.html" style="color: var(--primary); font-weight: 700;">Lost & Found page</a> to report any lost item with description & contact details.<br>
+• <strong>Found Something?</strong> Report found items on the same page — our AI TF-IDF matcher will automatically find potential matches!<br>
+• <strong>Physical Counter:</strong> Check the Security Office at Main Gate. Found items are often deposited there.<br>
+• <strong>ID Card Lost:</strong> Apply for duplicate at Academic Office (AB1, 2nd Floor). Fee: ₹200.<br>
+• <strong>Tips:</strong> Always keep your belongings secure. Label your laptop bags and bottles.<br><br>
+🔗 <a href="/lost-found.html" style="color: var(--primary);">Go to Lost & Found →</a>`
+        },
+        // --- MEDICAL ---
+        {
+          keywords: ["doctor", "medical", "health", "hospital", "sick", "medicine", "pharmacy", "ambulance", "emergency", "fever", "injury", "clinic"],
+          department: "Health Centre",
+          deptClass: "dept-general",
+          answer: `<strong>Health Centre & Medical Support:</strong><br><br>
+• <strong>Location:</strong> Near the Food Court area. Open 24/7.<br>
+• <strong>Services:</strong> Doctor consultation, first-aid, emergency beds, basic pathology tests.<br>
+• <strong>Pharmacy:</strong> On-campus pharmacy with OTC medicines. Prescriptions available from campus doctor.<br>
+• <strong>Ambulance:</strong> 24/7 ambulance on standby for emergencies. Call security desk.<br>
+• <strong>Insurance:</strong> Student medical insurance included in fee. Covers hospitalization up to ₹1,00,000.<br>
+• <strong>Mental Health:</strong> Counsellor available Mon-Fri, 10 AM - 4 PM. Confidential sessions. Book via VTOP.<br><br>
+📞 Health Centre Emergency: Call hostel warden or security desk.`
+        },
+        // --- PLACEMENT ---
+        {
+          keywords: ["placement", "job", "internship", "company", "salary", "package", "recruit", "career", "interview", "resume", "hire"],
+          department: "Placements",
+          deptClass: "dept-academics",
+          answer: `<strong>Placements & Career Services:</strong><br><br>
+• <strong>Placement Cell:</strong> Located in AB1, 3rd Floor. Active from July-March every year.<br>
+• <strong>Top Recruiters:</strong> TCS, Infosys, Wipro, Cognizant, Capgemini, Amazon, Microsoft, Deloitte, and 200+ companies.<br>
+• <strong>Average Package:</strong> ₹5-7 LPA. Highest packages have crossed ₹40+ LPA.<br>
+• <strong>Internships:</strong> 6-month mandatory internship in 7th semester. Companies visit from November onwards.<br>
+• <strong>Pre-Placement Training:</strong> Aptitude, coding, GD, and interview prep sessions conducted by T&P Cell.<br>
+• <strong>Eligibility:</strong> No active backlogs, minimum 60% CGPA (varies by company).<br>
+• <strong>Resume Portal:</strong> Upload updated resume on VTOP → Placement Section before September.<br><br>
+📞 Training & Placement Office: AB1, 3rd Floor.`
+        },
+        // --- WIFI / INTERNET ---
+        {
+          keywords: ["wifi", "internet", "network", "login", "portal", "vpn", "bandwidth", "slow", "connectivity"],
+          department: "IT Services",
+          deptClass: "dept-general",
+          answer: `<strong>Wi-Fi & Internet:</strong><br><br>
+• <strong>Network Name:</strong> VIT-WiFi (for students) / VIT-Faculty (for faculty).<br>
+• <strong>Login:</strong> Use your registration number and VTOP password at the captive portal.<br>
+• <strong>Speed:</strong> Up to 150 Mbps shared. Best speeds during off-peak hours (after 10 PM).<br>
+• <strong>Coverage:</strong> All academic blocks, hostels, library, and food court areas.<br>
+• <strong>Issues?</strong> Contact IT Help Desk at AB1, Ground Floor. Or raise a ticket on VTOP → IT Support.<br>
+• <strong>LAN:</strong> Ethernet ports available in hostel rooms for faster speeds.<br><br>
+📞 IT Help Desk: AB1, Ground Floor. Timings: 9 AM - 6 PM.`
+        },
+        // GENERAL GREETING
+        {
+          keywords: ["hello", "hi", "hey", "help", "start", "what can you do", "who are you", "about"],
+          department: "General",
+          deptClass: "dept-general",
+          answer: `<strong>Hello! I'm the Campus AI Assistant 🎓</strong><br><br>
+I can help you with information about VIT Bhopal campus. Try asking about:<br><br>
+• 📋 <strong>Admissions</strong> — eligibility, fees, application process<br>
+• 🏠 <strong>Hostel</strong> — rooms, mess, rules, laundry, Wi-Fi<br>
+• 📝 <strong>Exams</strong> — CAT, FAT, results, revaluation<br>
+• 🍽️ <strong>Food</strong> — canteens, menus, timings, prices<br>
+• 🚕 <strong>Transport</strong> — cabs, autos, fare estimates<br>
+• ⚽ <strong>Sports</strong> — grounds, gym, facilities<br>
+• 📍 <strong>Campus Map</strong> — building locations & navigation<br>
+• 💼 <strong>Placements</strong> — companies, packages, internships<br>
+• 🏥 <strong>Health</strong> — medical centre, pharmacy, emergency<br><br>
+Just type your question below! 👇`
+        }
+      ];
+
+      // ============================================================
+      // CHATBOT ENGINE
+      // ============================================================
+      const messagesArea = document.getElementById('messagesArea');
+      const userInput = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendBtn');
+
+      function getTime() {
+        return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      }
+
+      function scrollToBottom() {
+        messagesArea.scrollTo({ top: messagesArea.scrollHeight, behavior: 'smooth' });
+      }
+
+      function addMessage(content, type, deptBadge) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `message ${type}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'msg-avatar';
+        avatar.textContent = type === 'bot' ? '🤖' : '👤';
+
+        const bubble = document.createElement('div');
+        bubble.style.display = 'flex';
+        bubble.style.flexDirection = 'column';
+
+        if (deptBadge && type === 'bot') {
+          const badge = document.createElement('span');
+          badge.className = `dept-badge ${deptBadge.deptClass}`;
+          badge.textContent = deptBadge.department;
+          bubble.appendChild(badge);
+        }
+
+        const msgContent = document.createElement('div');
+        msgContent.className = 'msg-content';
+        msgContent.innerHTML = content;
+        bubble.appendChild(msgContent);
+
+        const timeEl = document.createElement('div');
+        timeEl.className = 'msg-time';
+        timeEl.textContent = getTime();
+        bubble.appendChild(timeEl);
+
+        wrapper.appendChild(avatar);
+        wrapper.appendChild(bubble);
+
+        messagesArea.appendChild(wrapper);
+        scrollToBottom();
+      }
+
+      function addQuickReplies(suggestions) {
+        const container = document.createElement('div');
+        container.className = 'quick-replies';
+
+        suggestions.forEach(text => {
+          const chip = document.createElement('button');
+          chip.className = 'quick-chip';
+          chip.textContent = text;
+          chip.addEventListener('click', () => {
+            container.remove();
+            handleUserMessage(text);
+          });
+          container.appendChild(chip);
+        });
+
+        messagesArea.appendChild(container);
+        scrollToBottom();
+      }
+
+      function showTyping() {
+        const indicator = document.createElement('div');
+        indicator.className = 'typing-indicator active';
+        indicator.id = 'typingIndicator';
+        indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        messagesArea.appendChild(indicator);
+        scrollToBottom();
+      }
+
+      function hideTyping() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+      }
+
+      function findBestMatch(query) {
+        const q = query.toLowerCase().replace(/[?!.,]/g, '');
+        const words = q.split(/\s+/);
+
+        let bestMatch = null;
+        let bestScore = 0;
+
+        KB.forEach(entry => {
+          let score = 0;
+          entry.keywords.forEach(kw => {
+            // Exact word match
+            if (words.includes(kw)) {
+              score += 3;
+            }
+            // Partial match (query contains keyword)
+            else if (q.includes(kw)) {
+              score += 2;
+            }
+            // Keyword contains a query word
+            else {
+              words.forEach(w => {
+                if (w.length > 2 && kw.includes(w)) {
+                  score += 1;
+                }
+              });
+            }
+          });
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = entry;
+          }
+        });
+
+        return bestScore >= 2 ? bestMatch : null;
+      }
+
+      function handleUserMessage(text) {
+        if (!text.trim()) return;
+
+        addMessage(text, 'user');
+        userInput.value = '';
+
+        showTyping();
+
+        const delay = 600 + Math.random() * 800;
+
+        setTimeout(() => {
+          hideTyping();
+
+          const match = findBestMatch(text);
+
+          if (match) {
+            addMessage(match.answer, 'bot', { department: match.department, deptClass: match.deptClass });
+
+            // Context-aware follow-up suggestions
+            const suggestions = getFollowUpSuggestions(match.department);
+            if (suggestions.length > 0) {
+              setTimeout(() => addQuickReplies(suggestions), 400);
+            }
+          } else {
+            addMessage(
+              `I couldn't find specific information about that topic in my campus knowledge base.<br><br>
+              Here are some things I can help with:<br>
+              • Admissions & fees<br>
+              • Hostel & mess details<br>
+              • Exam schedule & results<br>
+              • Food stalls & menus<br>
+              • Transport & cabs<br>
+              • Campus map & buildings<br>
+              • Placements & internships<br><br>
+              Try rephrasing your question or pick a topic below! 👇`,
+              'bot',
+              { department: 'General', deptClass: 'dept-general' }
+            );
+
+            setTimeout(() => {
+              addQuickReplies([
+                "Tell me about admissions",
+                "Hostel details",
+                "Food options",
+                "Exam schedule",
+                "Campus map"
+              ]);
+            }, 400);
+          }
+        }, delay);
+      }
+
+      function getFollowUpSuggestions(department) {
+        const map = {
+          "Admissions": ["Fee structure?", "Hostel details", "Placements info"],
+          "Finance": ["Hostel fees?", "Scholarship info", "Admissions process"],
+          "Hostel": ["Mess timings?", "Outpass rules", "Wi-Fi details"],
+          "Student Affairs": ["Hostel rules", "Leave policy", "Exam schedule"],
+          "Academics": ["Exam schedule", "Attendance rules", "Placements"],
+          "Examinations": ["Result date?", "Revaluation process", "Attendance rules"],
+          "Food & Dining": ["Campus map", "Hostel mess", "Transport info"],
+          "Transport": ["Campus map", "Food options", "Hostel details"],
+          "Sports": ["Campus map", "Food nearby", "Club events"],
+          "Student Life": ["Sports facilities", "Campus map", "Food options"],
+          "Campus Navigation": ["Food stalls", "Hostel location", "Transport"],
+          "Lost & Found": ["Campus map", "Security office", "ID card issue"],
+          "Health Centre": ["Emergency contacts", "Campus map", "Hostel warden"],
+          "Placements": ["Academics info", "Clubs to join", "Internship details"],
+          "IT Services": ["VTOP portal", "Hostel Wi-Fi", "IT help desk"],
+          "General": ["Admissions", "Hostel info", "Campus map", "Food stalls", "Placements"]
+        };
+        return map[department] || [];
+      }
+
+      // Event Listeners
+      sendBtn.addEventListener('click', () => handleUserMessage(userInput.value));
+
+      userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleUserMessage(userInput.value);
+      });
+
+      // Welcome Message
+      setTimeout(() => {
+        addMessage(
+          `<strong>Welcome to Campus Help AI! 🎓</strong><br><br>
+          I'm your VIT Bhopal campus assistant. I can answer questions about:<br><br>
+          📋 Admissions &amp; Fees &nbsp;|&nbsp; 🏠 Hostel &amp; Mess<br>
+          📝 Exams &amp; Results &nbsp;|&nbsp; 🍽️ Food Stalls<br>
+          🚕 Transport &amp; Cabs &nbsp;|&nbsp; 📍 Campus Map<br>
+          ⚽ Sports &amp; Clubs &nbsp;|&nbsp; 💼 Placements<br><br>
+          <em>Type a question or tap a suggestion below to get started!</em>`,
+          'bot',
+          { department: 'Campus AI', deptClass: 'dept-academics' }
+        );
+
+        setTimeout(() => {
+          addQuickReplies([
+            "Admissions process",
+            "Hostel & mess info",
+            "Food on campus",
+            "Exam schedule",
+            "How to book a cab?"
+          ]);
+        }, 500);
+      }, 300);
+    })();
+  </script>
+</body>
+
+</html>
